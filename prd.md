@@ -156,15 +156,24 @@ Because Who's Next requires no account, the attack surface is low but not zero. 
 
 ### 6.1 Coding standards
 
-- **Language:** TypeScript throughout — frontend, backend, and shared packages.
-- **Package manager:** pnpm without hoisting. All packages must declare their own dependencies explicitly.
-- **Project structure:** Monorepo with three top-level packages: `frontend`, `backend`, and `shared`. The shared package contains DTOs, enums, and any other types consumed by both frontend and backend. Cross-package imports are only permitted from `shared` — `frontend` and `backend` do not import from each other.
+- **Language:** TypeScript throughout — frontend, backend, and shared packages. TypeScript 5.9.3 (latest version supported by Angular).
+- **Package manager:** pnpm 10, no hoisting. All packages must declare their own dependencies explicitly. Shared dependency versions are aligned via pnpm catalogs (`catalog:` protocol in `pnpm-workspace.yaml`).
+- **Runtime:** Node 24.
+- **Project structure:** Monorepo with packages and apps in separate top-level folders: `apps/` (frontend, backend, e2e) and `packages/` (shared). The shared package contains DTOs, enums, and any other types consumed by both frontend and backend. Cross-package imports are only permitted from `shared` — `frontend` and `backend` do not import from each other.
+- **Linting:** ESLint 9+ with a flat config (`eslint.config.mjs`) at the monorepo root. Required plugins: `typescript-eslint` (`recommendedTypeChecked`), `angular-eslint` (scoped to frontend), `eslint-plugin-import-x` (import ordering and cycle detection), `eslint-plugin-unicorn` (opinionated best practices), `eslint-plugin-prettier` (formatting integration), `eslint-plugin-package-json`.
+- **Formatting:** Prettier via `prettier.config.mjs` at the monorepo root. Settings: `singleQuote: true`, `trailingComma: 'all'`, `printWidth: 100`, `semi: true`.
+- **Angular conventions:** Standalone bootstrap (`bootstrapApplication`). Zoneless change detection (`provideZonelessChangeDetection()`). All components must use `ChangeDetectionStrategy.OnPush`. All routes must be lazy-loaded with `loadComponent`.
+- **NestJS conventions:** Structured JSON logging (`ConsoleLogger` with `json: true`). Global API prefix `api` (with `/health` excluded). Global `ValidationPipe` with `whitelist: true`, `forbidNonWhitelisted: true`, `transform: true`. DTOs validated with `class-validator` and `class-transformer`.
+- **API testing:** Every backend endpoint must have a corresponding [Bruno](https://www.usebruno.com/) request in `apps/backend/bruno/`.
+- **AI sign-off checklist:** Before signing off on any change, verify: (1) zero TypeScript errors across all affected packages, (2) zero ESLint errors and warnings across all affected files.
 
 ### 6.2 Design & UX standards
 
 - **Design system:** Material 3.
 - **Component library:** Angular Material (Material 3 theme).
 - All UI components must be sourced from Angular Material or be custom components that conform to the Material 3 specification.
+- **Theming:** Both light and dark themes. A theme switcher must be included. Default to the user's system preference.
+- **Internationalisation:** Required. English is the default (and minimum) language. `@ngx-translate/core` with `@ngx-translate/http-loader` is used for runtime translation loading.
 
 ### 6.3 API & data conventions
 
@@ -184,20 +193,26 @@ Because Who's Next requires no account, the attack surface is low but not zero. 
 |---|---|
 | Frontend framework | Angular 21 (client-side rendering) |
 | Frontend UI | Angular Material (Material 3) |
+| Internationalisation | @ngx-translate/core + @ngx-translate/http-loader |
 | Backend framework | NestJS 11 |
 | ORM | MikroORM 7 |
 | Database | PostgreSQL 16 |
 | Shared | TypeScript package for DTOs and common types |
-| Unit testing | Vitest (frontend and backend) |
-| E2E & accessibility testing | Playwright + axe-core |
-| Package manager | pnpm (no hoisting) |
+| Unit testing | Vitest (unit and component tests via `vitest.config.ts`; integration tests via `vitest.integration.config.ts` + Testcontainers) |
+| E2E & accessibility testing | Playwright + axe-core (`@axe-core/playwright`) |
+| API testing | Bruno collections (`apps/backend/bruno/`) |
+| Package manager | pnpm 10 (no hoisting, catalogs for shared versions) |
+| Language | TypeScript 5.9.3 |
+| Runtime | Node 24 |
+| Linting | ESLint 9+ flat config |
+| Formatting | Prettier |
 
 ### 7.2 Architecture & integrations
 
-- **Monorepo** containing three packages: `frontend`, `backend`, `shared`.
+- **Monorepo** containing packages under `apps/` (frontend, backend, e2e) and `packages/` (shared).
 - **Frontend** is a CSR Angular application deployed on Cloudflare Pages.
 - **Backend** is a NestJS API deployed on Railway (single instance).
-- **Dev environment** is fully Dockerized. All components share a common base image, with separate multi-stage build targets per component (frontend, backend, shared). A single `docker-compose.yml` at the repository root orchestrates the full local stack including the PostgreSQL instance.
+- **Dev environment** is fully Dockerized. All components share a common base image (Node 24), with separate multi-stage build targets per component (frontend, backend, shared watcher). A single `docker-compose.yml` at the repository root orchestrates the full local stack including the PostgreSQL instance. A dedicated `packages-watcher` Docker service runs `tsc --watch` inside `packages/shared/` to keep compiled output in sync; the backend service declares it as a dependency.
 - No external services are introduced for the initial release. Rate limiting, slug generation, and all application logic run within the NestJS process.
 
 ### 7.3 Data storage & privacy
@@ -212,3 +227,25 @@ Because Who's Next requires no account, the attack surface is low but not zero. 
 - **In-memory rate limiting** does not persist across backend restarts and does not function correctly if multiple backend instances are run. Acceptable for a single-instance Railway deployment; must be revisited before horizontal scaling.
 - **No authentication** means the rotation link is the sole access control mechanism. Anyone who obtains a rotation link has full management access. This is a known and accepted constraint of the v1 no-account model.
 - **CSR-only frontend** means the initial page load requires JavaScript. Server-side rendering is not in scope.
+
+### 7.5 Backend patterns & conventions
+
+- **BaseEntity:** All domain entities must extend a shared `BaseEntity` (defined with MikroORM's decorator-less `defineEntity` API) that provides:
+  - UUID primary key — `gen_random_uuid()` as the database default, `randomUUID()` as the application-level default.
+  - `createdAt` / `updatedAt` timestamps — both an `onCreate`/`onUpdate` application-level callback and a `defaultRaw('NOW()')` database-level default.
+- **Entity seeders:** Every domain entity must have a seeder in `apps/backend/seeders/` that populates a representative set of test data covering a wide variety of scenarios.
+- **Migration lifecycle:** During early development (no migration files present), the database schema is managed with the MikroORM CLI `schema:fresh` command. Once the first migration file is committed, every subsequent schema change requires a generated migration file. The presence of any migration file in the repository signals the project is in the post-stabilisation phase.
+
+### 7.6 Integration testing
+
+- Integration tests use Testcontainers to spin up a real PostgreSQL container during test runs.
+- The `vitest.integration.config.ts` `globalSetup` file (`apps/backend/src/test/global-setup.ts`) starts a `postgres:16-alpine` container and writes the connection URI to `process.env` for tests to consume. The container reference is stored on `globalThis` so the teardown function can stop it.
+- Set a `testTimeout` of at least 60 000 ms in `vitest.integration.config.ts` to allow for container startup.
+- The `@testcontainers/postgresql` package must be added as a dev dependency when the first integration test is introduced.
+
+### 7.7 Bruno API collection requirements
+
+- Every backend endpoint must have a corresponding Bruno request in `apps/backend/bruno/`.
+- Each request must cover at minimum: the primary success case and any meaningful error or edge-case variants (e.g. 400 validation failure, 404 not found).
+- Use Bruno environment files (`apps/backend/bruno/environments/`) to parameterise the base URL so the collection works across local and any future environments without editing individual requests.
+- The `bruno/` directory and all environment files (except those containing secrets) are committed to the repository.

@@ -1,0 +1,33 @@
+@use '@angular/material' as mat;
+
+// Apply Angular Material M3 theme to the application.
+// The default M3 theme uses system colour tokens derived from the primary hue.
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+// Base layout
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+// Toolbar layout helpers
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content {
+  padding: 2rem;
+}

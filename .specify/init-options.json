@@ -2,7 +2,7 @@
   "ai": "claude",
   "ai_skills": true,
   "branch_numbering": "timestamp",
-  "here": false,
+  "here": true,
   "integration": "claude",
   "preset": null,
   "script": "sh",

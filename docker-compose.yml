@@ -1,0 +1,137 @@
+services:
+  # ──────────────────────────────────────────────────────────────────────────
+  # PostgreSQL 16
+  # ──────────────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-whosnext}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-whosnext}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # NestJS backend
+  # Preferred build path: `./dev.sh build` (docker buildx bake).
+  # The build: block here is a fallback for `docker compose up` without bake.
+  # node_modules are bound to named volumes so the source bind mount cannot
+  # overwrite packages installed during the image build.
+  # ──────────────────────────────────────────────────────────────────────────
+  backend:
+    image: whos-next-backend:dev
+    build:
+      context: .
+      target: backend-dev
+    working_dir: /app/apps/backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-whosnext}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      BACKEND_PORT: ${BACKEND_PORT:-3000}
+      CHOKIDAR_USEPOLLING: "1"
+      CHOKIDAR_INTERVAL: "2000"
+      NODE_ENV: development
+    command: sh -c "pnpm run migrate && pnpm run start:dev"
+    volumes:
+      # Source bind mounts — enables hot reload
+      - ./apps/backend/src:/app/apps/backend/src
+      - ./apps/backend/mikro-orm.config.ts:/app/apps/backend/mikro-orm.config.ts
+      - ./apps/backend/tsconfig.json:/app/apps/backend/tsconfig.json
+      - ./apps/backend/nest-cli.json:/app/apps/backend/nest-cli.json
+      - ./packages/shared/src:/app/packages/shared/src
+      # Named volumes protect node_modules from the source bind mounts above
+      - backend_root_nm:/app/node_modules
+      - backend_pkg_nm:/app/apps/backend/node_modules
+      - backend_shared_nm:/app/packages/shared/node_modules
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e",
+        "require('http').get('http://localhost:3000/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Angular frontend
+  # Dev server with polling-based hot reload. Proxies /api/* to backend.
+  # ──────────────────────────────────────────────────────────────────────────
+  frontend:
+    image: whos-next-frontend:dev
+    build:
+      context: .
+      target: frontend-dev
+    working_dir: /app/apps/frontend
+    environment:
+      FRONTEND_PORT: ${FRONTEND_PORT:-4200}
+      NODE_ENV: development
+    command: pnpm run start:docker
+    volumes:
+      # Source bind mounts — enables hot reload
+      - ./apps/frontend/src:/app/apps/frontend/src
+      - ./packages/shared/src:/app/packages/shared/src
+      # Named volumes protect node_modules and Angular build cache
+      - frontend_root_nm:/app/node_modules
+      - frontend_pkg_nm:/app/apps/frontend/node_modules
+      - frontend_shared_nm:/app/packages/shared/node_modules
+      - angular_cache:/app/apps/frontend/.angular
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Playwright e2e (run-once — not a long-running service)
+  # Usage: ./dev.sh test e2e
+  #        docker compose run --rm e2e pnpm test
+  # Only test files and config are bind-mounted; node_modules stay in the
+  # named volume so the Playwright browser binary is not overwritten.
+  # ──────────────────────────────────────────────────────────────────────────
+  e2e:
+    image: whos-next-e2e:dev
+    build:
+      context: .
+      target: e2e
+    working_dir: /app/apps/e2e
+    environment:
+      BASE_URL: http://frontend:4200
+    volumes:
+      # Bind only the test sources, not the entire e2e directory
+      - ./apps/e2e/tests:/app/apps/e2e/tests
+      - ./apps/e2e/playwright.config.ts:/app/apps/e2e/playwright.config.ts
+      # Named volumes protect node_modules and Playwright browser binaries
+      - e2e_root_nm:/app/node_modules
+      - e2e_pkg_nm:/app/apps/e2e/node_modules
+    depends_on:
+      - frontend
+
+volumes:
+  postgres_data:
+  # Backend node_modules (protected from source bind mount)
+  backend_root_nm:
+  backend_pkg_nm:
+  backend_shared_nm:
+  # Frontend node_modules and Angular cache (protected from source bind mount)
+  frontend_root_nm:
+  frontend_pkg_nm:
+  frontend_shared_nm:
+  angular_cache:
+  # E2e node_modules and Playwright browser binaries
+  e2e_root_nm:
+  e2e_pkg_nm:

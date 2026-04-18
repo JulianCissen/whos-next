@@ -1,0 +1,19 @@
+{
+  "name": "@whos-next/shared",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Who's Next — shared TypeScript types (DTOs and interfaces)",
+  "type": "commonjs",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

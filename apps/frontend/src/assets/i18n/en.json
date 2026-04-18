@@ -1,0 +1,13 @@
+{
+  "app": {
+    "title": "Who's Next",
+    "tagline": "Track who's up next in your rotation."
+  },
+  "nav": {
+    "home": "Home"
+  },
+  "language": {
+    "switch_to_dutch": "Nederlands",
+    "switch_to_english": "English"
+  }
+}
