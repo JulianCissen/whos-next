@@ -1,0 +1,23 @@
+meta {
+  name: Create Rotation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rotations
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Dish duty"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("slug", res.body.slug);
+  }
+}

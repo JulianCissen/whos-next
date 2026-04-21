@@ -4,7 +4,7 @@ node_modules/
 .pnp.js
 
 # Build outputs
-dist/
+**/dist/
 build/
 out/
 .angular/
@@ -43,3 +43,13 @@ pnpm-debug.log*
 # TypeScript
 *.tsbuildinfo
 out-tsc/
+
+# Compiled output in source trees (tsc emit artefacts; build products go to dist/)
+apps/frontend/src/**/*.js
+apps/frontend/src/**/*.js.map
+apps/frontend/src/**/*.d.ts
+apps/frontend/src/**/*.d.ts.map
+packages/shared/src/**/*.js
+packages/shared/src/**/*.js.map
+packages/shared/src/**/*.d.ts
+packages/shared/src/**/*.d.ts.map

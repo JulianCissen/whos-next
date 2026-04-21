@@ -1,5 +1,9 @@
 @use '@angular/material' as mat;
 
+// Required for foundational structural styles: ripple, overlay, elevation,
+// pseudo-checkbox, focus indicators, and typography baseline.
+@include mat.core();
+
 // Apply Angular Material M3 theme to the application.
 // The default M3 theme uses system colour tokens derived from the primary hue.
 html {
@@ -15,19 +19,25 @@ html {
   );
 }
 
-// Base layout
 html,
 body {
   height: 100%;
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
 }
 
-// Toolbar layout helpers
+// Toolbar spacer
 .spacer {
   flex: 1 1 auto;
 }
 
-.content {
-  padding: 2rem;
+// Max-width centered container — used by all pages
+.page-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  box-sizing: border-box;
+  width: 100%;
 }

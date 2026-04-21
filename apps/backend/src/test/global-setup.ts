@@ -1,26 +1,22 @@
-// Integration test global setup — Testcontainers pattern (RA §7.3)
-//
-// TODO: When the first integration tests are added:
-//   1. Install: pnpm --filter @whos-next/backend add -D @testcontainers/postgresql
-//   2. Replace the stubs below with the real Testcontainers implementation:
-//
-//   import { PostgreSqlContainer } from '@testcontainers/postgresql';
-//
-//   export async function setup(): Promise<void> {
-//     const container = await new PostgreSqlContainer('postgres:16-alpine').start();
-//     process.env['DATABASE_URL'] = container.getConnectionUri();
-//     (globalThis as { __pgContainer?: unknown }).__pgContainer = container;
-//   }
-//
-//   export async function teardown(): Promise<void> {
-//     const container = (globalThis as { __pgContainer?: { stop(): Promise<void> } }).__pgContainer;
-//     await container?.stop();
-//   }
+import { PostgreSqlContainer } from '@testcontainers/postgresql';
+import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
+
+interface GlobalWithContainer {
+  __pgContainer?: StartedPostgreSqlContainer;
+}
 
 export async function setup(): Promise<void> {
-  // No-op until Testcontainers is introduced.
+  const container = await new PostgreSqlContainer('postgres:16-alpine').start();
+  process.env['DATABASE_URL'] = container.getConnectionUri();
+  process.env['DB_HOST'] = container.getHost();
+  process.env['DB_PORT'] = String(container.getPort());
+  process.env['DB_NAME'] = container.getDatabase();
+  process.env['DB_USER'] = container.getUsername();
+  process.env['DB_PASSWORD'] = container.getPassword();
+  (globalThis as GlobalWithContainer).__pgContainer = container;
 }
 
 export async function teardown(): Promise<void> {
-  // No-op until Testcontainers is introduced.
+  const container = (globalThis as GlobalWithContainer).__pgContainer;
+  await container?.stop();
 }

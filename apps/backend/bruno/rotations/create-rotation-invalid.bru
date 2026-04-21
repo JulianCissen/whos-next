@@ -1,0 +1,17 @@
+meta {
+  name: Create Rotation - Invalid (empty name)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/rotations
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": ""
+  }
+}

@@ -7,12 +7,8 @@ export default defineConfig({
   dbName: process.env['DB_NAME'] ?? 'whosnext',
   user: process.env['DB_USER'] ?? 'postgres',
   password: process.env['DB_PASSWORD'] ?? 'postgres',
-  entities: ['dist/**/*.entity.js'],
-  entitiesTs: ['src/**/*.entity.ts'],
-  discovery: {
-    // No entity files exist yet during scaffolding — suppress the "no entities" error
-    warnWhenNoEntities: false,
-  },
+  entities: ['dist/**/*.entity.js', 'dist/common/base-entity.js'],
+  entitiesTs: ['src/**/*.entity.ts', 'src/common/base-entity.ts'],
   extensions: [Migrator],
   migrations: {
     path: 'dist/database/migrations',
@@ -20,4 +16,5 @@ export default defineConfig({
     glob: '!(*.d).{js,ts}',
   },
   debug: process.env['NODE_ENV'] === 'development',
+  colors: false,
 });

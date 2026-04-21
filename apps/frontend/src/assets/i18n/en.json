@@ -9,5 +9,34 @@
   "language": {
     "switch_to_dutch": "Nederlands",
     "switch_to_english": "English"
+  },
+  "landing": {
+    "headline": "Start a rotation",
+    "name_label": "Rotation name",
+    "name_placeholder": "e.g. Dish duty",
+    "name_required": "A name is required.",
+    "name_max_length": "Name must be 100 characters or fewer.",
+    "create_button": "Create rotation",
+    "create_error": "Something went wrong. Please try again."
+  },
+  "rotation": {
+    "not_found_heading": "Rotation not found",
+    "not_found_message": "This link may be invalid or the rotation has been deleted.",
+    "load_error": "Failed to load rotation. Please refresh.",
+    "share_banner": "Your rotation is ready! Share this link with your team.",
+    "share_banner_dismiss": "Dismiss",
+    "rename_label": "Rotation name",
+    "rename_button": "Rename",
+    "rename_error": "Failed to rename. Please try again.",
+    "delete_button": "Delete rotation"
+  },
+  "delete_dialog": {
+    "title": "Delete rotation",
+    "warning": "This action cannot be undone. All data for this rotation will be permanently deleted.",
+    "confirm_prompt": "Type the rotation name to confirm:",
+    "confirm_placeholder": "Rotation name",
+    "cancel_button": "Cancel",
+    "delete_button": "Delete",
+    "deleted_snackbar": "Rotation deleted."
   }
 }

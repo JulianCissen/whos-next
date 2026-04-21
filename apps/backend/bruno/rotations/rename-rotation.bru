@@ -1,0 +1,17 @@
+meta {
+  name: Rename Rotation
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/rotations/{{slug}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "New rotation name"
+  }
+}

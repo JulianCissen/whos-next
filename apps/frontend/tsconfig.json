@@ -14,6 +14,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
+    "noEmit": true,
     "paths": {
       "@whos-next/shared": ["../../packages/shared/src/index.ts"],
       "@whos-next/shared/*": ["../../packages/shared/src/*"]
@@ -24,6 +25,6 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

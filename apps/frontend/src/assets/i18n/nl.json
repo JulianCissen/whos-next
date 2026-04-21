@@ -9,5 +9,34 @@
   "language": {
     "switch_to_dutch": "Nederlands",
     "switch_to_english": "English"
+  },
+  "landing": {
+    "headline": "Start een rotatie",
+    "name_label": "Naam van de rotatie",
+    "name_placeholder": "bijv. Afwassen",
+    "name_required": "Een naam is verplicht.",
+    "name_max_length": "Naam mag maximaal 100 tekens zijn.",
+    "create_button": "Rotatie aanmaken",
+    "create_error": "Er is iets misgegaan. Probeer opnieuw."
+  },
+  "rotation": {
+    "not_found_heading": "Rotatie niet gevonden",
+    "not_found_message": "Deze link is ongeldig of de rotatie is verwijderd.",
+    "load_error": "Kon rotatie niet laden. Vernieuw de pagina.",
+    "share_banner": "Je rotatie is klaar! Deel deze link met je team.",
+    "share_banner_dismiss": "Sluiten",
+    "rename_label": "Naam van de rotatie",
+    "rename_button": "Hernoemen",
+    "rename_error": "Hernoemen mislukt. Probeer opnieuw.",
+    "delete_button": "Rotatie verwijderen"
+  },
+  "delete_dialog": {
+    "title": "Rotatie verwijderen",
+    "warning": "Deze actie kan niet ongedaan worden gemaakt. Alle gegevens van deze rotatie worden permanent verwijderd.",
+    "confirm_prompt": "Typ de naam van de rotatie ter bevestiging:",
+    "confirm_placeholder": "Naam van de rotatie",
+    "cancel_button": "Annuleren",
+    "delete_button": "Verwijderen",
+    "deleted_snackbar": "Rotatie verwijderd."
   }
 }

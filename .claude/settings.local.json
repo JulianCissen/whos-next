@@ -7,7 +7,13 @@
       "mcp__chrome-devtools-mcp__take_screenshot",
       "mcp__chrome-devtools-mcp__list_console_messages",
       "mcp__chrome-devtools-mcp__list_network_requests",
-      "mcp__chrome-devtools-mcp__navigate_page"
+      "mcp__chrome-devtools-mcp__navigate_page",
+      "Bash(docker restart *)",
+      "Bash(docker exec *)",
+      "Bash(docker compose *)",
+      "mcp__chrome-devtools-mcp__list_pages",
+      "mcp__chrome-devtools-mcp__evaluate_script",
+      "Bash(pnpm -w run lint)"
     ]
   },
   "enableAllProjectMcpServers": true,

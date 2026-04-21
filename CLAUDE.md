@@ -44,6 +44,7 @@ Before signing off on any change, verify:
 
 ## Recent Changes
 
+- 20260418-195008-rotation-lifecycle: Added `Rotation` entity (slug-addressed, no-auth), `/api/rotations` REST endpoints (create / get / rename / delete), slug generator (`node:crypto` + base-58 rejection sampling), DB-level collision detection via `UNIQUE`, conditional 24-hour last-access throttle, Angular routes `''` (landing) and `':slug'` (rotation page) with Material 3 typed-name delete dialog and `MatSnackBar` deletion toast.
 - 20260415-200718-project-scaffolding: Added TypeScript 5.x — Angular 21 (frontend), NestJS 11 (backend), TypeScript-only (shared) + Angular 21, Angular Material (M3), @ngx-translate/core, NestJS 11, MikroORM 7, Vitest, Playwright, @axe-core/playwright, pnpm
 
 <!-- MANUAL ADDITIONS START -->

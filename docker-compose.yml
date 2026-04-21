@@ -42,7 +42,7 @@ services:
       CHOKIDAR_USEPOLLING: "1"
       CHOKIDAR_INTERVAL: "2000"
       NODE_ENV: development
-    command: sh -c "pnpm run migrate && pnpm run start:dev"
+    command: sh -c "pnpm --filter @whos-next/shared build && pnpm run migrate && pnpm run start:dev"
     volumes:
       # Source bind mounts — enables hot reload
       - ./apps/backend/src:/app/apps/backend/src
@@ -50,6 +50,9 @@ services:
       - ./apps/backend/tsconfig.json:/app/apps/backend/tsconfig.json
       - ./apps/backend/nest-cli.json:/app/apps/backend/nest-cli.json
       - ./packages/shared/src:/app/packages/shared/src
+      - ./packages/shared/package.json:/app/packages/shared/package.json
+      - ./packages/shared/tsconfig.json:/app/packages/shared/tsconfig.json
+      - ./packages/shared/tsconfig.build.json:/app/packages/shared/tsconfig.build.json
       # Named volumes protect node_modules from the source bind mounts above
       - backend_root_nm:/app/node_modules
       - backend_pkg_nm:/app/apps/backend/node_modules
@@ -84,6 +87,9 @@ services:
     volumes:
       # Source bind mounts — enables hot reload
       - ./apps/frontend/src:/app/apps/frontend/src
+      - ./apps/frontend/tsconfig.json:/app/apps/frontend/tsconfig.json
+      - ./apps/frontend/tsconfig.app.json:/app/apps/frontend/tsconfig.app.json
+      - ./apps/frontend/angular.json:/app/apps/frontend/angular.json
       - ./packages/shared/src:/app/packages/shared/src
       # Named volumes protect node_modules and Angular build cache
       - frontend_root_nm:/app/node_modules

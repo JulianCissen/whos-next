@@ -17,7 +17,7 @@ WORKDIR /app
 # ============================================================================
 FROM base AS backend-dev
 COPY pnpm-workspace.yaml package.json .npmrc tsconfig.base.json ./
-COPY packages/shared/package.json ./packages/shared/
+COPY packages/shared/package.json packages/shared/tsconfig.json packages/shared/tsconfig.build.json ./packages/shared/
 COPY apps/backend/package.json apps/backend/tsconfig.json apps/backend/nest-cli.json apps/backend/mikro-orm.config.ts ./apps/backend/
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/e2e/package.json ./apps/e2e/

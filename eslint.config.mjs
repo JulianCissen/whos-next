@@ -11,7 +11,14 @@ import angular from 'angular-eslint';
 export default tseslint.config(
   // 1. Global ignores
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/.angular/**', '**/*.d.ts', '**/*.js.map'],
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/.angular/**',
+      '**/*.d.ts',
+      '**/*.js.map',
+      '**/*.bru',
+    ],
   },
 
   // 2. TypeScript base — type-aware linting for all TS files
@@ -28,8 +35,10 @@ export default tseslint.config(
             'apps/e2e/playwright.config.ts',
             'apps/e2e/tests/*.spec.ts',
             'apps/backend/src/*/*.spec.ts',
+            'apps/backend/src/*/*/*.spec.ts',
           ],
           defaultProject: 'tsconfig.base.json',
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 20,
         },
       },
     },
@@ -109,6 +118,10 @@ export default tseslint.config(
     files: ['apps/frontend/src/**/*.ts'],
     extends: [...angular.configs.tsRecommended],
     processor: angular.processInlineTemplates,
+    rules: {
+      // Angular validators use unbound static methods — this is intentional
+      '@typescript-eslint/unbound-method': 'off',
+    },
   },
   {
     files: ['apps/frontend/src/**/*.html'],
