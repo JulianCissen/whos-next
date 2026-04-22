@@ -1,9 +1,308 @@
 {
   "name": "public",
-  "namespaces": [
-    "public"
-  ],
+  "namespaces": ["public"],
   "tables": [
+    {
+      "name": "members",
+      "schema": "public",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "gen_random_uuid()",
+          "comment": null,
+          "enumItems": []
+        },
+        "rotation_id": {
+          "name": "rotation_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "position": {
+          "name": "position",
+          "type": "int4",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": 32,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "removed_at": {
+          "name": "removed_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": ["id"],
+          "composite": false,
+          "constraint": false,
+          "keyName": "members_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": ["rotation_id"],
+          "composite": false,
+          "constraint": false,
+          "keyName": "members_rotation_id_idx",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "members_name_length_chk",
+          "columnName": "name",
+          "definition": "CHECK (((char_length(name) >= 1) AND (char_length(name) <= 100)))",
+          "expression": "(char_length(name) >= 1) AND (char_length(name) <= 100)"
+        },
+        {
+          "name": "members_position_positive_chk",
+          "columnName": "position",
+          "definition": "CHECK (((\"position\" IS NULL) OR (\"position\" >= 1)))",
+          "expression": "(\"position\" IS NULL) OR (\"position\" >= 1)"
+        }
+      ],
+      "foreignKeys": {
+        "members_rotation_id_fkey": {
+          "columnNames": ["rotation_id"],
+          "constraintName": "members_rotation_id_fkey",
+          "localTableName": "public.members",
+          "referencedTableName": "public.rotations",
+          "referencedColumnNames": ["id"],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {},
+      "comment": null
+    },
+    {
+      "name": "occurrence_assignments",
+      "schema": "public",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "gen_random_uuid()",
+          "comment": null,
+          "enumItems": []
+        },
+        "rotation_id": {
+          "name": "rotation_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "occurrence_date": {
+          "name": "occurrence_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "member_id": {
+          "name": "member_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": ["id"],
+          "composite": false,
+          "constraint": false,
+          "keyName": "occurrence_assignments_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": ["rotation_id", "occurrence_date"],
+          "composite": true,
+          "constraint": true,
+          "keyName": "occurrence_assignments_rotation_date_uniq",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "columnNames": ["rotation_id"],
+          "composite": false,
+          "constraint": false,
+          "keyName": "occurrence_assignments_rotation_id_idx",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "occurrence_assignments_member_id_fkey": {
+          "columnNames": ["member_id"],
+          "constraintName": "occurrence_assignments_member_id_fkey",
+          "localTableName": "public.occurrence_assignments",
+          "referencedTableName": "public.members",
+          "referencedColumnNames": ["id"],
+          "updateRule": "no action",
+          "deleteRule": "no action"
+        },
+        "occurrence_assignments_rotation_id_fkey": {
+          "columnNames": ["rotation_id"],
+          "constraintName": "occurrence_assignments_rotation_id_fkey",
+          "localTableName": "public.occurrence_assignments",
+          "referencedTableName": "public.rotations",
+          "referencedColumnNames": ["id"],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {},
+      "comment": null
+    },
     {
       "name": "rotations",
       "schema": "public",
@@ -97,13 +396,26 @@
           "default": "now()",
           "comment": null,
           "enumItems": []
+        },
+        "next_index": {
+          "name": "next_index",
+          "type": "int4",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 32,
+          "scale": 0,
+          "default": "0",
+          "comment": null,
+          "enumItems": []
         }
       },
       "indexes": [
         {
-          "columnNames": [
-            "id"
-          ],
+          "columnNames": ["id"],
           "composite": false,
           "constraint": false,
           "keyName": "rotations_pkey",
@@ -111,9 +423,7 @@
           "primary": true
         },
         {
-          "columnNames": [
-            "slug"
-          ],
+          "columnNames": ["slug"],
           "composite": false,
           "constraint": false,
           "keyName": "rotations_slug_uniq",

@@ -41,4 +41,42 @@ test.describe('Accessibility — WCAG 2.2 AA', () => {
 
     expect(results.violations).toEqual([]);
   });
+
+  test('rotation page with member queue has no accessibility violations', async ({ page }) => {
+    await page.goto('/');
+    await page.getByLabel(/rotation name/i).fill('A11y queue');
+    await page.getByRole('button', { name: /create rotation/i }).click();
+    await page.waitForURL(/\/[a-zA-Z1-9]{8}/);
+
+    await page.getByLabel(/member name/i).fill('Alice');
+    await page.getByRole('radio', { name: 'Back' }).click();
+    await page.getByRole('button', { name: /add member/i }).click();
+    await page.waitForLoadState('networkidle');
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+
+    expect(results.violations).toEqual([]);
+  });
+
+  test('rotation page drag-and-drop element has no accessibility violations', async ({ page }) => {
+    await page.goto('/');
+    await page.getByLabel(/rotation name/i).fill('A11y drag');
+    await page.getByRole('button', { name: /create rotation/i }).click();
+    await page.waitForURL(/\/[a-zA-Z1-9]{8}/);
+
+    await page.getByLabel(/member name/i).fill('Bob');
+    await page.getByRole('radio', { name: 'Back' }).click();
+    await page.getByRole('button', { name: /add member/i }).click();
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('[cdkDrag]').first()).toBeVisible();
+
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+
+    expect(results.violations).toEqual([]);
+  });
 });

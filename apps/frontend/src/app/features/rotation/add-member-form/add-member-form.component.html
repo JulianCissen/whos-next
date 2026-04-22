@@ -1,0 +1,42 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+  <div class="input-row">
+    <mat-form-field appearance="outline" class="name-field">
+      <mat-label>{{ 'member.add_form.name_label' | translate }}</mat-label>
+      <input
+        matInput
+        formControlName="name"
+        [placeholder]="'member.add_form.name_placeholder' | translate"
+        autocomplete="off"
+      />
+      @if (form.controls.name.hasError('required') || form.controls.name.hasError('whitespace')) {
+        <mat-error>{{ 'member.add_form.name_required' | translate }}</mat-error>
+      } @else if (form.controls.name.hasError('maxlength')) {
+        <mat-error>{{ 'member.add_form.name_max_length' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-button-toggle-group
+      formControlName="placement"
+      hideSingleSelectionIndicator
+      class="placement-toggle"
+      aria-label="{{ 'member.add_form.placement_label' | translate }}"
+    >
+      <mat-button-toggle value="front">
+        {{ 'member.add_form.placement_front' | translate }}
+      </mat-button-toggle>
+      <mat-button-toggle value="back">
+        {{ 'member.add_form.placement_back' | translate }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  @if (capacityError()) {
+    <p class="form-error" role="alert">{{ 'member.add_form.capacity_error' | translate }}</p>
+  } @else if (genericError()) {
+    <p class="form-error" role="alert">{{ 'member.add_form.generic_error' | translate }}</p>
+  }
+
+  <button mat-flat-button type="submit" [disabled]="submitting()">
+    {{ 'member.add_form.submit_button' | translate }}
+  </button>
+</form>

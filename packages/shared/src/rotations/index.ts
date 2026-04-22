@@ -1,3 +1,5 @@
+import type { MemberDto } from '../members/index.js';
+
 export const SLUG_LENGTH = 8;
 export const SLUG_REGEX = /^[1-9A-HJ-NP-Za-km-z]{8}$/;
 export const ROTATION_NAME_MIN_LENGTH = 1;
@@ -18,6 +20,7 @@ export interface RotationResponseDto {
   name: string;
   createdAt: string;
   updatedAt: string;
+  members: MemberDto[];
 }
 
 export interface ApiErrorResponseDto {

@@ -1,0 +1,22 @@
+meta {
+  name: Add Member (Capacity Exceeded)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/rotations/{{slug}}/members
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Member 101",
+    "placement": "back"
+  }
+}
+
+docs {
+  Expects 409 QUEUE_CAPACITY_EXCEEDED when rotation already has 100 active members.
+}

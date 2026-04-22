@@ -73,4 +73,72 @@ describe('RotationPage', () => {
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('[role="alert"]')).toBeTruthy();
   });
+
+  it('renders member queue section after load', async () => {
+    const fixture = TestBed.createComponent(RotationPage);
+    fixture.detectChanges();
+    httpController.expectOne('/api/rotations/aBcDeFgH').flush({
+      slug: 'aBcDeFgH',
+      name: 'Dish duty',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      members: [],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('app-member-queue')).toBeTruthy();
+  });
+
+  it('renders empty state when rotation has no members', async () => {
+    const fixture = TestBed.createComponent(RotationPage);
+    fixture.detectChanges();
+    httpController.expectOne('/api/rotations/aBcDeFgH').flush({
+      slug: 'aBcDeFgH',
+      name: 'Dish duty',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      members: [],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('.empty-state')).toBeTruthy();
+  });
+
+  it('renders member names when rotation has members', async () => {
+    const fixture = TestBed.createComponent(RotationPage);
+    fixture.detectChanges();
+    httpController.expectOne('/api/rotations/aBcDeFgH').flush({
+      slug: 'aBcDeFgH',
+      name: 'Dish duty',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      members: [
+        { id: 'm1', name: 'Alice', position: 1 },
+        { id: 'm2', name: 'Bob', position: 2 },
+      ],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.textContent).toContain('Alice');
+    expect(el.textContent).toContain('Bob');
+  });
+
+  it('renders the add member form', async () => {
+    const fixture = TestBed.createComponent(RotationPage);
+    fixture.detectChanges();
+    httpController.expectOne('/api/rotations/aBcDeFgH').flush({
+      slug: 'aBcDeFgH',
+      name: 'Dish duty',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      members: [],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('app-add-member-form')).toBeTruthy();
+  });
 });

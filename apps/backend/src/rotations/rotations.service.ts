@@ -8,12 +8,14 @@ import {
 
 import type {
   CreateRotationRequestDto,
+  MemberDto,
   RenameRotationRequestDto,
   RotationResponseDto,
 } from '@whos-next/shared';
 import { SLUG_REGEX } from '@whos-next/shared';
 
 import { generateSlug } from '../common/slug/slug.generator.js';
+import { Member } from '../members/member.entity.js';
 
 import { Rotation } from './rotation.entity.js';
 
@@ -65,8 +67,13 @@ export class RotationsService {
         message: 'Rotation not found',
       });
     }
+    const members = await em.find(
+      Member,
+      { rotation, removedAt: null },
+      { orderBy: { position: 'ASC' } },
+    );
     this.scheduleLastAccessUpdate(slug);
-    return this.toDto(rotation);
+    return this.toDto(rotation, members);
   }
 
   async rename(slug: string, dto: RenameRotationRequestDto): Promise<RotationResponseDto> {
@@ -113,22 +120,30 @@ export class RotationsService {
   }
 
   private scheduleLastAccessUpdate(slug: string): void {
-    const em = this.orm.em.fork();
-    const sql = `UPDATE rotations SET last_accessed_at = NOW() WHERE slug = $1 AND last_accessed_at < NOW() - INTERVAL '24 hours'`;
-    void em
-      .getConnection()
-      .execute(sql, [slug])
-      .catch((error: unknown) => {
-        this.logger.error(`Failed to update last_accessed_at for slug ${slug}`, error);
-      });
+    void (async () => {
+      const em = this.orm.em.fork();
+      const rotation = await em.findOne(Rotation, { slug });
+      if (!rotation?.touchAccess()) return;
+      rotation.lastAccessedAt = new Date();
+      await em.flush();
+    })().catch((error: unknown) => {
+      this.logger.error(`Failed to update last_accessed_at for slug ${slug}`, error);
+    });
   }
 
-  private toDto(rotation: Rotation): RotationResponseDto {
+  private toDto(rotation: Rotation, members: Member[] = []): RotationResponseDto {
     return {
       slug: rotation.slug,
       name: rotation.name,
       createdAt: rotation.createdAt.toISOString(),
       updatedAt: rotation.updatedAt.toISOString(),
+      members: members.map(
+        (m): MemberDto => ({
+          id: m.id,
+          name: m.name,
+          position: m.position as number,
+        }),
+      ),
     };
   }
 }

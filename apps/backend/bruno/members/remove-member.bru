@@ -1,0 +1,11 @@
+meta {
+  name: Remove Member
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/rotations/{{slug}}/members/{{memberId}}
+  body: none
+  auth: none
+}

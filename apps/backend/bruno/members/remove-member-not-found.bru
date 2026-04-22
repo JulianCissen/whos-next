@@ -1,0 +1,15 @@
+meta {
+  name: Remove Member (Not Found)
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrl}}/rotations/{{slug}}/members/00000000-0000-0000-0000-000000000000
+  body: none
+  auth: none
+}
+
+docs {
+  Expects 404 MEMBER_NOT_FOUND when member does not exist or is already removed.
+}

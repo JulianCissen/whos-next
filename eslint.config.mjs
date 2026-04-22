@@ -31,11 +31,13 @@ export default tseslint.config(
           allowDefaultProject: [
             'apps/backend/vitest.config.ts',
             'apps/backend/vitest.integration.config.ts',
+            'apps/frontend/vite.config.ts',
             'apps/frontend/vitest.config.ts',
             'apps/e2e/playwright.config.ts',
             'apps/e2e/tests/*.spec.ts',
             'apps/backend/src/*/*.spec.ts',
             'apps/backend/src/*/*/*.spec.ts',
+            'packages/shared/src/*/*.spec.ts',
           ],
           defaultProject: 'tsconfig.base.json',
           maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 20,

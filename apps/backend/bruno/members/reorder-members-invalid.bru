@@ -1,0 +1,21 @@
+meta {
+  name: Reorder Members (Invalid)
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/rotations/{{slug}}/members/order
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "memberIds": ["00000000-0000-0000-0000-000000000000"]
+  }
+}
+
+docs {
+  Expects 400 REORDER_INVALID when memberIds does not exactly match the active members.
+}

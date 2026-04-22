@@ -11,19 +11,24 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ROTATION_NAME_MAX_LENGTH } from '@whos-next/shared';
-import type { RotationResponseDto } from '@whos-next/shared';
+import type { MemberDto, RotationResponseDto } from '@whos-next/shared';
 
+import { MembersApiService } from '../../core/api/members.api';
 import { RotationsApiService } from '../../core/api/rotations.api';
 
+import { AddMemberFormComponent } from './add-member-form/add-member-form.component';
 import { DeleteRotationDialogComponent } from './delete-rotation-dialog.component';
-import { ShareLinkBannerComponent } from './share-link-banner.component';
+import { MemberQueueComponent } from './member-queue/member-queue.component';
 
 @Component({
   selector: 'app-rotation-page',
@@ -33,10 +38,14 @@ import { ShareLinkBannerComponent } from './share-link-banner.component';
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
+    MatDividerModule,
+    MatExpansionModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     TranslateModule,
-    ShareLinkBannerComponent,
+    AddMemberFormComponent,
+    MemberQueueComponent,
   ],
   template: `
     @if (loading()) {
@@ -46,21 +55,48 @@ import { ShareLinkBannerComponent } from './share-link-banner.component';
         {{ 'rotation.load_error' | translate }}
       </div>
     } @else if (rotation()) {
-      @if (showShareBanner()) {
-        <app-share-link-banner [url]="shareUrl()" (dismissed)="showShareBanner.set(false)" />
-      }
-
       <div class="page-container">
         <header class="rotation-header">
           <p class="rotation-header__label">Rotation</p>
           <h1 class="rotation-header__title">{{ rotation()!.name }}</h1>
+          <div class="share-url-bar">
+            <code class="share-url-bar__url">{{ currentUrl() }}</code>
+            <button
+              mat-icon-button
+              class="share-url-bar__copy-btn"
+              (click)="copyUrl()"
+              [attr.aria-label]="'rotation.copy_link_label' | translate"
+            >
+              <mat-icon>{{ urlCopied() ? 'check' : 'content_copy' }}</mat-icon>
+            </button>
+          </div>
         </header>
 
         <mat-card appearance="outlined" class="section-card">
           <mat-card-header>
-            <mat-card-title>{{ 'rotation.rename_button' | translate }}</mat-card-title>
+            <mat-card-title>{{ 'member.add_form.title' | translate }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
+            <app-add-member-form [slug]="rotation()!.slug" (memberAdded)="onMemberAdded($event)" />
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="section-card">
+          <mat-card-content>
+            <app-member-queue
+              [members]="members()"
+              (memberRemoved)="onMemberRemoved($event)"
+              (membersReordered)="onMembersReordered($event)"
+            />
+          </mat-card-content>
+        </mat-card>
+
+        <mat-expansion-panel class="settings-panel">
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{ 'rotation.settings_title' | translate }}</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="settings-section">
             <form [formGroup]="renameForm" (ngSubmit)="onRename()" class="rename-form">
               <mat-form-field appearance="outline" class="rename-form__field">
                 <mat-label>{{ 'rotation.rename_label' | translate }}</mat-label>
@@ -80,87 +116,26 @@ import { ShareLinkBannerComponent } from './share-link-banner.component';
                 {{ 'rotation.rename_button' | translate }}
               </button>
             </form>
-          </mat-card-content>
-        </mat-card>
+          </div>
 
-        <div class="danger-section">
-          <button mat-stroked-button class="delete-btn" (click)="openDeleteDialog()">
-            {{ 'rotation.delete_button' | translate }}
-          </button>
-        </div>
+          <mat-divider class="settings-divider"></mat-divider>
+
+          <div class="settings-section settings-section--danger">
+            <button mat-stroked-button class="delete-btn" (click)="openDeleteDialog()">
+              {{ 'rotation.delete_button' | translate }}
+            </button>
+          </div>
+        </mat-expansion-panel>
       </div>
     }
   `,
-  styles: [
-    `
-      .state-message {
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 1rem;
-      }
-
-      .rotation-header {
-        margin-bottom: 32px;
-      }
-
-      .rotation-header__label {
-        margin: 0 0 4px;
-        font-size: 0.75rem;
-        font-weight: 500;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--mat-sys-primary);
-      }
-
-      /* M3 headline-large: 32sp / 40 lh */
-      .rotation-header__title {
-        margin: 0;
-        font-size: 2rem;
-        line-height: 2.5rem;
-        font-weight: 400;
-        color: var(--mat-sys-on-surface);
-      }
-
-      .section-card {
-        margin-bottom: 32px;
-      }
-
-      .rename-form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding-top: 8px;
-      }
-
-      .rename-form__field {
-        width: 100%;
-      }
-
-      .rename-form__error {
-        margin: 0;
-        font-size: 0.875rem;
-        color: var(--mat-sys-error);
-      }
-
-      .rename-form button[type='submit'] {
-        align-self: flex-start;
-      }
-
-      .danger-section {
-        display: flex;
-        justify-content: flex-start;
-      }
-
-      .delete-btn {
-        --mat-button-outlined-label-text-color: var(--mat-sys-error);
-        --mat-button-outlined-outline-color: var(--mat-sys-error);
-      }
-    `,
-  ],
+  styleUrl: './rotation.page.scss',
 })
 export class RotationPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(RotationsApiService);
+  private readonly membersApi = inject(MembersApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -170,9 +145,10 @@ export class RotationPage implements OnInit {
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly rotation = signal<RotationResponseDto | null>(null);
-  readonly showShareBanner = signal(false);
+  readonly members = signal<MemberDto[]>([]);
   readonly renaming = signal(false);
   readonly renameError = signal(false);
+  readonly urlCopied = signal(false);
 
   readonly renameForm = this.fb.group({
     name: [
@@ -185,21 +161,25 @@ export class RotationPage implements OnInit {
     ],
   });
 
-  get shareUrl(): () => string {
-    return () => globalThis.location.href;
+  currentUrl(): string {
+    return globalThis.location.href;
+  }
+
+  copyUrl(): void {
+    void navigator.clipboard.writeText(this.currentUrl()).then(() => {
+      this.urlCopied.set(true);
+      setTimeout(() => {
+        this.urlCopied.set(false);
+      }, 2000);
+    });
   }
 
   ngOnInit(): void {
-    const navState = history.state as { justCreated?: boolean } | null;
-    if (navState?.justCreated === true) {
-      this.showShareBanner.set(true);
-      history.replaceState({}, '');
-    }
-
     const slug = this.route.snapshot.paramMap.get('slug') ?? '';
     this.api.get(slug).subscribe({
       next: (rotation) => {
         this.rotation.set(rotation);
+        this.members.set(rotation.members ?? []);
         this.renameForm.controls.name.setValue(rotation.name);
         this.loading.set(false);
         this.cdr.markForCheck();
@@ -207,6 +187,42 @@ export class RotationPage implements OnInit {
       error: () => {
         this.loadError.set(true);
         this.loading.set(false);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  onMemberAdded(_member: MemberDto): void {
+    const slug = this.rotation()?.slug ?? '';
+    this.api.get(slug).subscribe({
+      next: (rotation) => {
+        this.rotation.set(rotation);
+        this.members.set(rotation.members ?? []);
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  onMemberRemoved(memberId: string): void {
+    const slug = this.rotation()?.slug ?? '';
+    this.membersApi.removeMember(slug, memberId).subscribe({
+      next: () => {
+        this.api.get(slug).subscribe({
+          next: (rotation) => {
+            this.rotation.set(rotation);
+            this.members.set(rotation.members ?? []);
+            this.cdr.markForCheck();
+          },
+        });
+      },
+    });
+  }
+
+  onMembersReordered(memberIds: string[]): void {
+    const slug = this.rotation()?.slug ?? '';
+    this.membersApi.reorderMembers(slug, { memberIds }).subscribe({
+      next: (result) => {
+        this.members.set(result.members);
         this.cdr.markForCheck();
       },
     });
@@ -261,5 +277,5 @@ export class RotationPage implements OnInit {
 function noControlCharsValidator(control: AbstractControl): ValidationErrors | null {
   const value = typeof control.value === 'string' ? control.value : '';
 
-  return /[\u0000-\u001F\u007F]/.test(value) ? { controlChars: true } : null;
+  return /[ -]/.test(value) ? { controlChars: true } : null;
 }

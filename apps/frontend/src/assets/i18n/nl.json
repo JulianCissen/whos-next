@@ -23,8 +23,8 @@
     "not_found_heading": "Rotatie niet gevonden",
     "not_found_message": "Deze link is ongeldig of de rotatie is verwijderd.",
     "load_error": "Kon rotatie niet laden. Vernieuw de pagina.",
-    "share_banner": "Je rotatie is klaar! Deel deze link met je team.",
-    "share_banner_dismiss": "Sluiten",
+    "copy_link_label": "Rotatie-link kopiëren",
+    "settings_title": "Instellingen",
     "rename_label": "Naam van de rotatie",
     "rename_button": "Hernoemen",
     "rename_error": "Hernoemen mislukt. Probeer opnieuw.",
@@ -38,5 +38,25 @@
     "cancel_button": "Annuleren",
     "delete_button": "Verwijderen",
     "deleted_snackbar": "Rotatie verwijderd."
+  },
+  "member": {
+    "empty_state": "Nog geen leden. Voeg de eerste persoon toe om te beginnen.",
+    "add_form": {
+      "title": "Lid toevoegen",
+      "name_label": "Naam van het lid",
+      "name_placeholder": "bijv. Alice",
+      "name_required": "Een naam is verplicht.",
+      "name_max_length": "Naam mag maximaal 100 tekens zijn.",
+      "placement_label": "Waar in de wachtrij?",
+      "placement_front": "Vooraan",
+      "placement_back": "Achteraan",
+      "submit_button": "Lid toevoegen",
+      "capacity_error": "De wachtrij is vol (maximaal 100 leden).",
+      "generic_error": "Er is iets misgegaan. Probeer opnieuw."
+    },
+    "remove_button_label": "{{name}} verwijderen",
+    "remove_confirm": "{{name}} uit de wachtrij verwijderen?",
+    "remove_confirm_yes": "Verwijderen",
+    "remove_confirm_no": "Annuleren"
   }
 }

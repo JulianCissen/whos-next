@@ -1,0 +1,22 @@
+meta {
+  name: Reorder Members
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/rotations/{{slug}}/members/order
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "memberIds": ["{{memberId}}"]
+  }
+}
+
+docs {
+  Set memberIds to the full ordered list of active member UUIDs. Use add-member-back.bru
+  and add-member-front.bru to populate the queue first.
+}

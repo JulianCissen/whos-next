@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "description": "Who's Next — shared TypeScript types (DTOs and interfaces)",
+  "type": "commonjs",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json --watch --preserveWatchOutput"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

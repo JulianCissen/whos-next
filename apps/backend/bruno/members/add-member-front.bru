@@ -1,0 +1,24 @@
+meta {
+  name: Add Member (Front)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rotations/{{slug}}/members
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Bob",
+    "placement": "front"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("memberId", res.body.id);
+  }
+}

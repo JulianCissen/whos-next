@@ -23,8 +23,8 @@
     "not_found_heading": "Rotation not found",
     "not_found_message": "This link may be invalid or the rotation has been deleted.",
     "load_error": "Failed to load rotation. Please refresh.",
-    "share_banner": "Your rotation is ready! Share this link with your team.",
-    "share_banner_dismiss": "Dismiss",
+    "copy_link_label": "Copy rotation link",
+    "settings_title": "Settings",
     "rename_label": "Rotation name",
     "rename_button": "Rename",
     "rename_error": "Failed to rename. Please try again.",
@@ -38,5 +38,25 @@
     "cancel_button": "Cancel",
     "delete_button": "Delete",
     "deleted_snackbar": "Rotation deleted."
+  },
+  "member": {
+    "empty_state": "No members yet. Add the first person to get started.",
+    "add_form": {
+      "title": "Add a member",
+      "name_label": "Member name",
+      "name_placeholder": "e.g. Alice",
+      "name_required": "A member name is required.",
+      "name_max_length": "Name must be 100 characters or fewer.",
+      "placement_label": "Where in the queue?",
+      "placement_front": "Front",
+      "placement_back": "Back",
+      "submit_button": "Add member",
+      "capacity_error": "The queue is full (maximum 100 members).",
+      "generic_error": "Something went wrong. Please try again."
+    },
+    "remove_button_label": "Remove {{name}}",
+    "remove_confirm": "Remove {{name}} from the queue?",
+    "remove_confirm_yes": "Remove",
+    "remove_confirm_no": "Cancel"
   }
 }

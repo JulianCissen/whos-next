@@ -17,6 +17,7 @@ export const RotationSchema = defineEntity({
       .datetime()
       .defaultRaw('NOW()')
       .onCreate(() => new Date()),
+    nextIndex: p.integer().default(0),
   },
 });
 
@@ -24,6 +25,7 @@ export class Rotation extends BaseEntity {
   declare slug: string;
   declare name: string;
   declare lastAccessedAt: Date;
+  declare nextIndex: number;
 
   rename(newName: string): void {
     const result = validateRotationName(newName);

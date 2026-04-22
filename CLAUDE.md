@@ -1,8 +1,10 @@
 # whos-next Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-18
+Auto-generated from all feature plans. Last updated: 2026-04-21
 
 ## Active Technologies
+- TypeScript 5.9.3 across all packages. (20260421-173419-member-queue)
+- PostgreSQL 16. Two new tables (`members`, `occurrence_assignments`) and one column addition (`next_index` on `rotations`). Introduced via `Migration20260421000002_members`. (20260421-173419-member-queue)
 
 - TypeScript 5.9.3 — Angular 21 (frontend), NestJS 11 (backend), TypeScript-only (shared)
 - Angular 21, Angular Material (M3), @ngx-translate/core
@@ -43,6 +45,7 @@ Before signing off on any change, verify:
 - See `.github/instructions/` for scoped AI rules
 
 ## Recent Changes
+- 20260421-173419-member-queue: Added TypeScript 5.9.3 across all packages.
 
 - 20260418-195008-rotation-lifecycle: Added `Rotation` entity (slug-addressed, no-auth), `/api/rotations` REST endpoints (create / get / rename / delete), slug generator (`node:crypto` + base-58 rejection sampling), DB-level collision detection via `UNIQUE`, conditional 24-hour last-access throttle, Angular routes `''` (landing) and `':slug'` (rotation page) with Material 3 typed-name delete dialog and `MatSnackBar` deletion toast.
 - 20260415-200718-project-scaffolding: Added TypeScript 5.x — Angular 21 (frontend), NestJS 11 (backend), TypeScript-only (shared) + Angular 21, Angular Material (M3), @ngx-translate/core, NestJS 11, MikroORM 7, Vitest, Playwright, @axe-core/playwright, pnpm

@@ -43,7 +43,12 @@ export interface DeleteRotationDialogData {
       <button mat-button [mat-dialog-close]="false" cdkFocusInitial>
         {{ 'delete_dialog.cancel_button' | translate }}
       </button>
-      <button mat-flat-button class="delete-confirm-btn" [disabled]="!canDelete()" (click)="confirm()">
+      <button
+        mat-flat-button
+        class="delete-confirm-btn"
+        [disabled]="!canDelete()"
+        (click)="confirm()"
+      >
         {{ 'delete_dialog.delete_button' | translate }}
       </button>
     </mat-dialog-actions>

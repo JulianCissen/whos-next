@@ -9,6 +9,7 @@ import { RotationsService } from './rotations.service.js';
 function makeOrmMock(
   overrides: {
     findOne?: (entity: unknown, where: unknown) => Promise<unknown>;
+    find?: (entity: unknown, where: unknown) => Promise<unknown[]>;
     flush?: () => Promise<void>;
     execute?: () => Promise<unknown[]>;
   } = {},
@@ -19,6 +20,7 @@ function makeOrmMock(
   };
   const em = {
     findOne: vi.fn().mockImplementation(overrides.findOne ?? (() => Promise.resolve(null))),
+    find: vi.fn().mockImplementation(overrides.find ?? (() => Promise.resolve([]))),
     persist: vi.fn(),
     remove: vi.fn(),
     flush: vi.fn().mockImplementation(overrides.flush ?? (() => Promise.resolve())),
@@ -95,6 +97,7 @@ describe('RotationsService', () => {
 
       expect(result.slug).toBe('aBcDeFgH');
       expect(result.name).toBe('Dish duty');
+      expect(result.members).toEqual([]);
     });
 
     it('throws NotFoundException for unknown slug', async () => {
