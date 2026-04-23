@@ -1,0 +1,32 @@
+.schedule-config {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.schedule-config__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.schedule-config__type-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.schedule-config__field {
+  width: 100%;
+  max-width: 320px;
+}
+
+.schedule-config__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--mat-sys-error);
+}
+
+.schedule-config__switch-btn {
+  align-self: flex-start;
+}

@@ -24,6 +24,8 @@
     "not_found_message": "This link may be invalid or the rotation has been deleted.",
     "load_error": "Failed to load rotation. Please refresh.",
     "copy_link_label": "Copy rotation link",
+    "copy_link": "Copy link",
+    "link_copied": "Copied!",
     "settings_title": "Settings",
     "rename_label": "Rotation name",
     "rename_button": "Rename",
@@ -38,6 +40,82 @@
     "cancel_button": "Cancel",
     "delete_button": "Delete",
     "deleted_snackbar": "Rotation deleted."
+  },
+  "occurrence": {
+    "section_title": "Schedule",
+    "previous": "Previous",
+    "next": "Next",
+    "assigned_to": "Assigned to",
+    "navigate": {
+      "forward": "Newer",
+      "backward": "Older",
+      "back_to_today": "Back to today"
+    },
+    "empty_state": {
+      "no_history": "No occurrences yet.",
+      "no_upcoming": "No upcoming occurrence.",
+      "no_member": "No member assigned.",
+      "no_schedule": "No schedule configured yet."
+    },
+    "error": {
+      "load_failed": "Failed to load schedule. Please refresh."
+    }
+  },
+  "schedule": {
+    "section_title": "Schedule configuration",
+    "type": {
+      "recurrence_rule": "Recurrence rule",
+      "custom_date_list": "Custom dates"
+    },
+    "rrule": {
+      "rule_type_label": "Repeat",
+      "weekly": "Weekly",
+      "every_n_weeks": "Every N weeks",
+      "monthly": "Monthly",
+      "day_of_week": {
+        "label": "Day of week",
+        "1": "Monday",
+        "2": "Tuesday",
+        "3": "Wednesday",
+        "4": "Thursday",
+        "5": "Friday",
+        "6": "Saturday",
+        "7": "Sunday"
+      },
+      "interval_n": {
+        "label": "Every how many weeks?"
+      },
+      "monthly_day": {
+        "label": "Day of month"
+      }
+    },
+    "start_date": {
+      "label": "Start date",
+      "toggle": "Set a start date"
+    },
+    "custom_date": {
+      "add_label": "Add date",
+      "remove_label": "Remove",
+      "empty_state": "No dates added yet.",
+      "date_input_label": "Date"
+    },
+    "save_button": "Save",
+    "save_success": "Schedule saved.",
+    "switch_type": {
+      "button_label": "Switch schedule type",
+      "confirm_title": "Switch schedule type?",
+      "confirm_body": "All current configuration will be lost.",
+      "confirm_action": "Switch"
+    },
+    "empty_state": {
+      "no_schedule": "No schedule configured.",
+      "setup_button": "Configure schedule"
+    },
+    "error": {
+      "duplicate_date": "This date is already in the list.",
+      "date_cap_exceeded": "Maximum number of dates reached.",
+      "save_failed": "Failed to save. Please try again."
+    }
   },
   "member": {
     "empty_state": "No members yet. Add the first person to get started.",

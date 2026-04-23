@@ -24,6 +24,8 @@
     "not_found_message": "Deze link is ongeldig of de rotatie is verwijderd.",
     "load_error": "Kon rotatie niet laden. Vernieuw de pagina.",
     "copy_link_label": "Rotatie-link kopiëren",
+    "copy_link": "Link kopiëren",
+    "link_copied": "Gekopieerd!",
     "settings_title": "Instellingen",
     "rename_label": "Naam van de rotatie",
     "rename_button": "Hernoemen",
@@ -38,6 +40,82 @@
     "cancel_button": "Annuleren",
     "delete_button": "Verwijderen",
     "deleted_snackbar": "Rotatie verwijderd."
+  },
+  "occurrence": {
+    "section_title": "Schema",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "assigned_to": "Toegewezen aan",
+    "navigate": {
+      "forward": "Nieuwer",
+      "backward": "Ouder",
+      "back_to_today": "Terug naar vandaag"
+    },
+    "empty_state": {
+      "no_history": "Nog geen voorvallen.",
+      "no_upcoming": "Geen aankomend voorval.",
+      "no_member": "Geen lid toegewezen.",
+      "no_schedule": "Nog geen schema geconfigureerd."
+    },
+    "error": {
+      "load_failed": "Schema laden mislukt. Vernieuw de pagina."
+    }
+  },
+  "schedule": {
+    "section_title": "Schema-configuratie",
+    "type": {
+      "recurrence_rule": "Herhalingsregel",
+      "custom_date_list": "Aangepaste datums"
+    },
+    "rrule": {
+      "rule_type_label": "Herhaling",
+      "weekly": "Wekelijks",
+      "every_n_weeks": "Elke N weken",
+      "monthly": "Maandelijks",
+      "day_of_week": {
+        "label": "Dag van de week",
+        "1": "Maandag",
+        "2": "Dinsdag",
+        "3": "Woensdag",
+        "4": "Donderdag",
+        "5": "Vrijdag",
+        "6": "Zaterdag",
+        "7": "Zondag"
+      },
+      "interval_n": {
+        "label": "Elke hoeveel weken?"
+      },
+      "monthly_day": {
+        "label": "Dag van de maand"
+      }
+    },
+    "start_date": {
+      "label": "Startdatum",
+      "toggle": "Stel een startdatum in"
+    },
+    "custom_date": {
+      "add_label": "Datum toevoegen",
+      "remove_label": "Verwijderen",
+      "empty_state": "Nog geen datums toegevoegd.",
+      "date_input_label": "Datum"
+    },
+    "save_button": "Opslaan",
+    "save_success": "Schema opgeslagen.",
+    "switch_type": {
+      "button_label": "Schema-type wisselen",
+      "confirm_title": "Schema-type wisselen?",
+      "confirm_body": "Alle huidige instellingen gaan verloren.",
+      "confirm_action": "Wisselen"
+    },
+    "empty_state": {
+      "no_schedule": "Geen schema geconfigureerd.",
+      "setup_button": "Schema configureren"
+    },
+    "error": {
+      "duplicate_date": "Deze datum staat al in de lijst.",
+      "date_cap_exceeded": "Maximaal aantal datums bereikt.",
+      "save_failed": "Opslaan mislukt. Probeer opnieuw."
+    }
   },
   "member": {
     "empty_state": "Nog geen leden. Voeg de eerste persoon toe om te beginnen.",

@@ -34,7 +34,12 @@ import type { MemberDto } from '@whos-next/shared';
         @for (member of localMembers(); track member.id) {
           <li class="queue-item" cdkDrag [cdkDragData]="member">
             <mat-icon cdkDragHandle class="drag-handle" aria-hidden="true">drag_indicator</mat-icon>
-            <span class="queue-item__position" aria-hidden="true">{{ member.position }}</span>
+            <span
+              class="queue-item__position"
+              [class.queue-item__position--top]="member.position <= 3"
+              aria-hidden="true"
+              >{{ member.position }}</span
+            >
             <span class="queue-item__name">{{ member.name }}</span>
             <button
               mat-icon-button

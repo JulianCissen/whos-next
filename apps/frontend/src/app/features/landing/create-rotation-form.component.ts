@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, output, signal } from '@angular/core';
-import type { AbstractControl, ValidationErrors } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,14 +6,11 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ROTATION_NAME_MAX_LENGTH } from '@whos-next/shared';
+import type { CreateRotationScheduleDto } from '@whos-next/shared';
 
 import { RotationsApiService } from '../../core/api/rotations.api';
-
-function noControlCharsValidator(control: AbstractControl): ValidationErrors | null {
-  const value = typeof control.value === 'string' ? control.value : '';
-
-  return /[\u0000-\u001F\u007F]/.test(value) ? { controlChars: true } : null;
-}
+import { noControlCharsValidator } from '../../shared/validators';
+import { ScheduleConfigComponent } from '../rotation/schedule-config/schedule-config.component';
 
 @Component({
   selector: 'app-create-rotation-form',
@@ -26,6 +22,7 @@ function noControlCharsValidator(control: AbstractControl): ValidationErrors | n
     MatInputModule,
     MatButtonModule,
     TranslateModule,
+    ScheduleConfigComponent,
   ],
   template: `
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
@@ -43,6 +40,8 @@ function noControlCharsValidator(control: AbstractControl): ValidationErrors | n
           <mat-error>{{ 'landing.name_max_length' | translate }}</mat-error>
         }
       </mat-form-field>
+
+      <app-schedule-config (scheduleChange)="onScheduleChange($event)" />
 
       @if (submitError()) {
         <p class="form__error" role="alert">{{ 'landing.create_error' | translate }}</p>
@@ -97,6 +96,11 @@ export class CreateRotationFormComponent {
 
   readonly submitting = signal(false);
   readonly submitError = signal(false);
+  readonly currentSchedule = signal<CreateRotationScheduleDto>({ type: 'custom_date_list' });
+
+  protected onScheduleChange(schedule: CreateRotationScheduleDto): void {
+    this.currentSchedule.set(schedule);
+  }
 
   onSubmit(): void {
     if (this.form.invalid || this.submitting()) return;
@@ -109,7 +113,7 @@ export class CreateRotationFormComponent {
 
     this.submitting.set(true);
     this.submitError.set(false);
-    this.api.create({ name }).subscribe({
+    this.api.create({ name, schedule: this.currentSchedule() }).subscribe({
       next: (rotation) => {
         this.submitting.set(false);
         this.created.emit(rotation.slug);

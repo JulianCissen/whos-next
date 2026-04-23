@@ -27,6 +27,11 @@ import { CreateRotationFormComponent } from './create-rotation-form.component';
         align-items: center;
         flex: 1;
         min-height: calc(100dvh - 64px);
+        background: radial-gradient(
+          ellipse 70% 60% at 5% 90%,
+          color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) 0%,
+          transparent 70%
+        );
       }
 
       .page-container {
@@ -50,10 +55,11 @@ import { CreateRotationFormComponent } from './create-rotation-form.component';
       /* M3 display-small: 36sp / 44 lh / –0.0156em */
       .hero__headline {
         margin: 0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 2.25rem;
         line-height: 2.75rem;
-        font-weight: 400;
-        letter-spacing: -0.0156em;
+        font-weight: 700;
+        letter-spacing: -0.02em;
         color: var(--mat-sys-on-surface);
       }
 

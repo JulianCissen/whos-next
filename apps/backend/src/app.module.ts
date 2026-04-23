@@ -6,8 +6,15 @@ import config from '../mikro-orm.config.js';
 import { HealthModule } from './health/health.module.js';
 import { MembersModule } from './members/members.module.js';
 import { RotationsModule } from './rotations/rotations.module.js';
+import { ScheduleModule } from './schedule/schedule.module.js';
 
 @Module({
-  imports: [MikroOrmModule.forRoot(config), HealthModule, MembersModule, RotationsModule],
+  imports: [
+    MikroOrmModule.forRoot(config),
+    HealthModule,
+    MembersModule,
+    RotationsModule,
+    ScheduleModule,
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 import type { MemberDto } from '../members/index.js';
+import type { CreateRotationScheduleDto, ScheduleDto } from '../schedule/index.js';
 
 export const SLUG_LENGTH = 8;
 export const SLUG_REGEX = /^[1-9A-HJ-NP-Za-km-z]{8}$/;
@@ -9,6 +10,7 @@ const CONTROL_CHAR_REGEX = /[\u0000-\u001F\u007F-\u009F]/;
 
 export interface CreateRotationRequestDto {
   name: string;
+  schedule: CreateRotationScheduleDto;
 }
 
 export interface RenameRotationRequestDto {
@@ -21,6 +23,7 @@ export interface RotationResponseDto {
   createdAt: string;
   updatedAt: string;
   members: MemberDto[];
+  schedule: ScheduleDto | null;
 }
 
 export interface ApiErrorResponseDto {

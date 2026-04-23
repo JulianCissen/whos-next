@@ -1,6 +1,8 @@
 {
   "name": "public",
-  "namespaces": ["public"],
+  "namespaces": [
+    "public"
+  ],
   "tables": [
     {
       "name": "members",
@@ -114,7 +116,9 @@
       },
       "indexes": [
         {
-          "columnNames": ["id"],
+          "columnNames": [
+            "id"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "members_pkey",
@@ -122,7 +126,9 @@
           "primary": true
         },
         {
-          "columnNames": ["rotation_id"],
+          "columnNames": [
+            "rotation_id"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "members_rotation_id_idx",
@@ -146,11 +152,15 @@
       ],
       "foreignKeys": {
         "members_rotation_id_fkey": {
-          "columnNames": ["rotation_id"],
+          "columnNames": [
+            "rotation_id"
+          ],
           "constraintName": "members_rotation_id_fkey",
           "localTableName": "public.members",
           "referencedTableName": "public.rotations",
-          "referencedColumnNames": ["id"],
+          "referencedColumnNames": [
+            "id"
+          ],
           "updateRule": "no action",
           "deleteRule": "cascade"
         }
@@ -255,7 +265,9 @@
       },
       "indexes": [
         {
-          "columnNames": ["id"],
+          "columnNames": [
+            "id"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "occurrence_assignments_pkey",
@@ -263,7 +275,10 @@
           "primary": true
         },
         {
-          "columnNames": ["rotation_id", "occurrence_date"],
+          "columnNames": [
+            "rotation_id",
+            "occurrence_date"
+          ],
           "composite": true,
           "constraint": true,
           "keyName": "occurrence_assignments_rotation_date_uniq",
@@ -271,7 +286,9 @@
           "primary": false
         },
         {
-          "columnNames": ["rotation_id"],
+          "columnNames": [
+            "rotation_id"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "occurrence_assignments_rotation_id_idx",
@@ -282,20 +299,28 @@
       "checks": [],
       "foreignKeys": {
         "occurrence_assignments_member_id_fkey": {
-          "columnNames": ["member_id"],
+          "columnNames": [
+            "member_id"
+          ],
           "constraintName": "occurrence_assignments_member_id_fkey",
           "localTableName": "public.occurrence_assignments",
           "referencedTableName": "public.members",
-          "referencedColumnNames": ["id"],
+          "referencedColumnNames": [
+            "id"
+          ],
           "updateRule": "no action",
           "deleteRule": "no action"
         },
         "occurrence_assignments_rotation_id_fkey": {
-          "columnNames": ["rotation_id"],
+          "columnNames": [
+            "rotation_id"
+          ],
           "constraintName": "occurrence_assignments_rotation_id_fkey",
           "localTableName": "public.occurrence_assignments",
           "referencedTableName": "public.rotations",
-          "referencedColumnNames": ["id"],
+          "referencedColumnNames": [
+            "id"
+          ],
           "updateRule": "no action",
           "deleteRule": "cascade"
         }
@@ -415,7 +440,9 @@
       },
       "indexes": [
         {
-          "columnNames": ["id"],
+          "columnNames": [
+            "id"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "rotations_pkey",
@@ -423,7 +450,9 @@
           "primary": true
         },
         {
-          "columnNames": ["slug"],
+          "columnNames": [
+            "slug"
+          ],
           "composite": false,
           "constraint": false,
           "keyName": "rotations_slug_uniq",
@@ -446,6 +475,372 @@
         }
       ],
       "foreignKeys": {},
+      "nativeEnums": {},
+      "comment": null
+    },
+    {
+      "name": "schedule_dates",
+      "schema": "public",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "gen_random_uuid()",
+          "comment": null,
+          "enumItems": []
+        },
+        "schedule_id": {
+          "name": "schedule_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "schedule_dates_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "schedule_id",
+            "date"
+          ],
+          "composite": true,
+          "constraint": true,
+          "keyName": "schedule_dates_schedule_date_unique",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "schedule_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "schedule_dates_schedule_id_idx",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "schedule_dates_schedule_id_fkey": {
+          "columnNames": [
+            "schedule_id"
+          ],
+          "constraintName": "schedule_dates_schedule_id_fkey",
+          "localTableName": "public.schedule_dates",
+          "referencedTableName": "public.schedules",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {},
+      "comment": null
+    },
+    {
+      "name": "schedules",
+      "schema": "public",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "gen_random_uuid()",
+          "comment": null,
+          "enumItems": []
+        },
+        "rotation_id": {
+          "name": "rotation_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [
+            "recurrence_rule",
+            "custom_date_list"
+          ]
+        },
+        "rrule_type": {
+          "name": "rrule_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [
+            "weekly",
+            "every_n_weeks",
+            "monthly"
+          ]
+        },
+        "day_of_week": {
+          "name": "day_of_week",
+          "type": "int2",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": 16,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "interval_n": {
+          "name": "interval_n",
+          "type": "int2",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": 16,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "monthly_day": {
+          "name": "monthly_day",
+          "type": "int2",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": 16,
+          "scale": 0,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": []
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "schedules_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "rotation_id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "schedules_rotation_id_unique",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "schedules_day_of_week_check",
+          "columnName": "day_of_week",
+          "definition": "CHECK (((day_of_week >= 1) AND (day_of_week <= 7)))",
+          "expression": "(day_of_week >= 1) AND (day_of_week <= 7)"
+        },
+        {
+          "name": "schedules_interval_n_check",
+          "columnName": "interval_n",
+          "definition": "CHECK ((interval_n >= 2))",
+          "expression": "interval_n >= 2"
+        },
+        {
+          "name": "schedules_monthly_day_check",
+          "columnName": "monthly_day",
+          "definition": "CHECK (((monthly_day >= 1) AND (monthly_day <= 31)))",
+          "expression": "(monthly_day >= 1) AND (monthly_day <= 31)"
+        },
+        {
+          "name": "schedules_rrule_type_check",
+          "columnName": "rrule_type",
+          "definition": "check (\"rrule_type\" in ('weekly', 'every_n_weeks', 'monthly'))",
+          "expression": "\"rrule_type\" in ('weekly', 'every_n_weeks', 'monthly')"
+        },
+        {
+          "name": "schedules_type_check",
+          "columnName": "type",
+          "definition": "check (\"type\" in ('recurrence_rule', 'custom_date_list'))",
+          "expression": "\"type\" in ('recurrence_rule', 'custom_date_list')"
+        }
+      ],
+      "foreignKeys": {
+        "schedules_rotation_id_fkey": {
+          "columnNames": [
+            "rotation_id"
+          ],
+          "constraintName": "schedules_rotation_id_fkey",
+          "localTableName": "public.schedules",
+          "referencedTableName": "public.rotations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
       "nativeEnums": {},
       "comment": null
     }

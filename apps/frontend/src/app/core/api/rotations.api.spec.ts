@@ -22,14 +22,16 @@ describe('RotationsApiService', () => {
   });
 
   it('create() POSTs to /api/rotations', () => {
-    service.create({ name: 'Dish duty' }).subscribe((result) => {
-      expect(result.name).toBe('Dish duty');
-      expect(result.slug).toBe('aBcDeFgH');
-    });
+    service
+      .create({ name: 'Dish duty', schedule: { type: 'custom_date_list' } })
+      .subscribe((result) => {
+        expect(result.name).toBe('Dish duty');
+        expect(result.slug).toBe('aBcDeFgH');
+      });
 
     const req = httpController.expectOne('/api/rotations');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ name: 'Dish duty' });
+    expect(req.request.body).toEqual({ name: 'Dish duty', schedule: { type: 'custom_date_list' } });
     req.flush({
       slug: 'aBcDeFgH',
       name: 'Dish duty',
