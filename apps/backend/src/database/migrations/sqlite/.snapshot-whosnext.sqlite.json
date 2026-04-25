@@ -2,165 +2,22 @@
   "namespaces": [],
   "tables": [
     {
-      "name": "rotations",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": true,
-          "nullable": false,
-          "unique": false,
-          "length": 36,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
-        },
-        "last_accessed_at": {
-          "name": "last_accessed_at",
-          "type": "datetime",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
-        },
-        "next_index": {
-          "name": "next_index",
-          "type": "integer",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": "0",
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        }
-      },
-      "indexes": [
-        {
-          "columnNames": [
-            "slug"
-          ],
-          "composite": false,
-          "keyName": "rotations_slug_unique",
-          "constraint": true,
-          "primary": false,
-          "unique": true
-        },
-        {
-          "keyName": "primary",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {},
-      "nativeEnums": {}
-    },
-    {
       "name": "members",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": true,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
         "created_at": {
           "name": "created_at",
@@ -175,8 +32,7 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "updated_at": {
           "name": "updated_at",
@@ -191,28 +47,11 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "rotation_id": {
           "name": "rotation_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": 36,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
@@ -223,12 +62,26 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
+        },
+        "name": {
+          "name": "name",
+          "type": "TEXT",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
         },
         "position": {
           "name": "position",
-          "type": "integer",
+          "type": "INTEGER",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
@@ -239,8 +92,7 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
+          "enumItems": []
         },
         "removed_at": {
           "name": "removed_at",
@@ -255,44 +107,45 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         }
       },
       "indexes": [
         {
           "columnNames": [
-            "rotation_id"
-          ],
-          "composite": false,
-          "keyName": "members_rotation_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "primary",
-          "columnNames": [
             "id"
           ],
-          "composite": false,
+          "keyName": "primary",
           "constraint": true,
-          "primary": true,
-          "unique": true
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "rotation_id"
+          ],
+          "keyName": "members_rotation_id_index",
+          "unique": false,
+          "constraint": false,
+          "primary": false
         }
       ],
       "checks": [],
       "foreignKeys": {
         "members_rotation_id_foreign": {
           "constraintName": "members_rotation_id_foreign",
+          "columnName": "rotation_id",
           "columnNames": [
             "rotation_id"
           ],
           "localTableName": "members",
+          "referencedTableName": "rotations",
+          "referencedColumnName": "id",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "rotations"
+          "updateRule": "no action",
+          "deleteRule": "no action"
         }
       },
       "nativeEnums": {}
@@ -302,19 +155,18 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": true,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
         "created_at": {
           "name": "created_at",
@@ -329,8 +181,7 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "updated_at": {
           "name": "updated_at",
@@ -345,24 +196,22 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "rotation_id": {
           "name": "rotation_id",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
         "occurrence_date": {
           "name": "occurrence_date",
@@ -377,28 +226,26 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "date"
+          "enumItems": []
         },
         "member_id": {
           "name": "member_id",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
         "skip_type": {
           "name": "skip_type",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
@@ -409,87 +256,90 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         }
       },
       "indexes": [
         {
           "columnNames": [
-            "rotation_id"
+            "id"
           ],
-          "composite": false,
-          "keyName": "occurrence_assignments_rotation_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
+          "keyName": "primary",
+          "constraint": true,
+          "unique": true,
+          "primary": true
         },
         {
           "columnNames": [
             "member_id"
           ],
-          "composite": false,
           "keyName": "occurrence_assignments_member_id_index",
+          "unique": false,
           "constraint": false,
-          "primary": false,
-          "unique": false
+          "primary": false
         },
         {
-          "keyName": "primary",
           "columnNames": [
-            "id"
+            "rotation_id"
           ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
+          "keyName": "occurrence_assignments_rotation_id_index",
+          "unique": false,
+          "constraint": false,
+          "primary": false
         }
       ],
       "checks": [],
       "foreignKeys": {
-        "occurrence_assignments_rotation_id_foreign": {
-          "constraintName": "occurrence_assignments_rotation_id_foreign",
-          "columnNames": [
-            "rotation_id"
-          ],
-          "localTableName": "occurrence_assignments",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "rotations"
-        },
         "occurrence_assignments_member_id_foreign": {
           "constraintName": "occurrence_assignments_member_id_foreign",
+          "columnName": "member_id",
           "columnNames": [
             "member_id"
           ],
           "localTableName": "occurrence_assignments",
+          "referencedTableName": "members",
+          "referencedColumnName": "id",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "members"
+          "updateRule": "no action",
+          "deleteRule": "no action"
+        },
+        "occurrence_assignments_rotation_id_foreign": {
+          "constraintName": "occurrence_assignments_rotation_id_foreign",
+          "columnName": "rotation_id",
+          "columnNames": [
+            "rotation_id"
+          ],
+          "localTableName": "occurrence_assignments",
+          "referencedTableName": "rotations",
+          "referencedColumnName": "id",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "no action"
         }
       },
       "nativeEnums": {}
     },
     {
-      "name": "schedules",
+      "name": "rotations",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": true,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
         "created_at": {
           "name": "created_at",
@@ -504,8 +354,7 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "updated_at": {
           "name": "updated_at",
@@ -520,28 +369,41 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
-        "rotation_id": {
-          "name": "rotation_id",
-          "type": "text",
+        "slug": {
+          "name": "slug",
+          "type": "TEXT",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "name": {
+          "name": "name",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
-        "type": {
-          "name": "type",
-          "type": "text",
+        "last_accessed_at": {
+          "name": "last_accessed_at",
+          "type": "datetime",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
@@ -552,126 +414,46 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
-        "rrule_type": {
-          "name": "rrule_type",
-          "type": "text",
+        "next_index": {
+          "name": "next_index",
+          "type": "INTEGER",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
+          "nullable": false,
           "unique": false,
           "length": null,
           "precision": null,
           "scale": null,
-          "default": null,
+          "default": "0",
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
-        },
-        "day_of_week": {
-          "name": "day_of_week",
-          "type": "integer",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        },
-        "interval_n": {
-          "name": "interval_n",
-          "type": "integer",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        },
-        "monthly_day": {
-          "name": "monthly_day",
-          "type": "integer",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "integer"
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "date"
+          "enumItems": []
         }
       },
       "indexes": [
         {
           "columnNames": [
-            "rotation_id"
-          ],
-          "composite": false,
-          "keyName": "schedules_rotation_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "primary",
-          "columnNames": [
             "id"
           ],
-          "composite": false,
+          "keyName": "primary",
           "constraint": true,
-          "primary": true,
-          "unique": true
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "slug"
+          ],
+          "keyName": "rotations_slug_unique",
+          "unique": true,
+          "constraint": true,
+          "primary": false
         }
       ],
       "checks": [],
-      "foreignKeys": {
-        "schedules_rotation_id_foreign": {
-          "constraintName": "schedules_rotation_id_foreign",
-          "columnNames": [
-            "rotation_id"
-          ],
-          "localTableName": "schedules",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "rotations"
-        }
-      },
+      "foreignKeys": {},
       "nativeEnums": {}
     },
     {
@@ -679,19 +461,18 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": true,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
         "created_at": {
           "name": "created_at",
@@ -706,8 +487,7 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "updated_at": {
           "name": "updated_at",
@@ -722,24 +502,22 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "datetime"
+          "enumItems": []
         },
         "schedule_id": {
           "name": "schedule_id",
-          "type": "text",
+          "type": "TEXT",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": 36,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "text"
+          "enumItems": []
         },
         "date": {
           "name": "date",
@@ -754,44 +532,239 @@
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "date"
+          "enumItems": []
         }
       },
       "indexes": [
         {
           "columnNames": [
-            "schedule_id"
-          ],
-          "composite": false,
-          "keyName": "schedule_dates_schedule_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "primary",
-          "columnNames": [
             "id"
           ],
-          "composite": false,
+          "keyName": "primary",
           "constraint": true,
-          "primary": true,
-          "unique": true
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "schedule_id"
+          ],
+          "keyName": "schedule_dates_schedule_id_index",
+          "unique": false,
+          "constraint": false,
+          "primary": false
         }
       ],
       "checks": [],
       "foreignKeys": {
         "schedule_dates_schedule_id_foreign": {
           "constraintName": "schedule_dates_schedule_id_foreign",
+          "columnName": "schedule_id",
           "columnNames": [
             "schedule_id"
           ],
           "localTableName": "schedule_dates",
+          "referencedTableName": "schedules",
+          "referencedColumnName": "id",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "schedules"
+          "updateRule": "no action",
+          "deleteRule": "no action"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "name": "schedules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "TEXT",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "rotation_id": {
+          "name": "rotation_id",
+          "type": "TEXT",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "type": {
+          "name": "type",
+          "type": "TEXT",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "rrule_type": {
+          "name": "rrule_type",
+          "type": "TEXT",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "day_of_week": {
+          "name": "day_of_week",
+          "type": "INTEGER",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "interval_n": {
+          "name": "interval_n",
+          "type": "INTEGER",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "monthly_day": {
+          "name": "monthly_day",
+          "type": "INTEGER",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": []
+        }
+      },
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "keyName": "primary",
+          "constraint": true,
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "rotation_id"
+          ],
+          "keyName": "schedules_rotation_id_index",
+          "unique": false,
+          "constraint": false,
+          "primary": false
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "schedules_rotation_id_foreign": {
+          "constraintName": "schedules_rotation_id_foreign",
+          "columnName": "rotation_id",
+          "columnNames": [
+            "rotation_id"
+          ],
+          "localTableName": "schedules",
+          "referencedTableName": "rotations",
+          "referencedColumnName": "id",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "no action"
         }
       },
       "nativeEnums": {}
