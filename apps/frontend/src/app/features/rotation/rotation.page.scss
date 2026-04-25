@@ -28,9 +28,14 @@
   color: var(--mat-sys-primary);
 }
 
-/* M3 headline-large: 32sp / 40 lh — Plus Jakarta Sans for distinction */
+.rotation-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .rotation-header__title {
-  margin: 0 0 16px;
+  margin: 0;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 2rem;
   line-height: 2.5rem;
@@ -39,53 +44,67 @@
   color: var(--mat-sys-on-surface);
 }
 
-.share-url-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.share-url-bar__pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--mat-sys-surface-container);
-  border-radius: 28px;
-  padding: 8px 16px;
-  min-width: 0;
-
-  mat-icon {
-    color: var(--mat-sys-on-surface-variant);
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-  }
-}
-
-.share-url-bar__url {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 0.8125rem;
+.rotation-header__copy-btn {
   color: var(--mat-sys-on-surface-variant);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 380px;
+  flex-shrink: 0;
+}
+
+.schedule-section {
+  margin-bottom: 24px;
+  animation: section-slide-in 240ms var(--mat-sys-motion-easing-standard, ease-out) 60ms both;
 }
 
 .section-card {
   margin-bottom: 24px;
   animation: section-slide-in 240ms var(--mat-sys-motion-easing-standard, ease-out) both;
 
-  &--hero {
-    animation-delay: 60ms;
-    background-color: var(--mat-sys-surface-container-low);
-  }
-
   &--queue {
     animation-delay: 120ms;
   }
+}
+
+.queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 0 8px;
+}
+
+.queue-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.queue-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+}
+
+.queue-subtitle {
+  font-size: 0.8125rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.queue-count {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface-variant);
+  border-radius: 12px;
+  padding: 2px 10px;
+  flex-shrink: 0;
+}
+
+.add-member-panel {
+  background: transparent;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  margin-bottom: 24px;
 }
 
 .occurrence-empty-state {

@@ -1,0 +1,20 @@
+meta {
+  name: Cancel Occurrence (not in schedule)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/rotations/{{slug}}/occurrences/9999-12-31/cancel
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 400", function() {
+    expect(res.status).to.equal(400);
+  });
+  test("error code is OCCURRENCE_NOT_IN_SCHEDULE", function() {
+    expect(res.body.error).to.equal("OCCURRENCE_NOT_IN_SCHEDULE");
+  });
+}

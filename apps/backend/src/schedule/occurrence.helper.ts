@@ -20,6 +20,30 @@ export function localYesterday(): Date {
   return new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 }
 
+/**
+ * Returns the rotation member assigned to `targetDate`, treating transparent dates as
+ * non-advancing (they do not advance the rotation counter).
+ *
+ * Transparent dates include any date with a date-cancel assignment ('date').
+ * `allFutureDatesFromToday` must be sorted ASC and include every schedule date >= today.
+ * `transparentDates` is the set of transparent ones.
+ */
+export function deriveFutureMember(
+  queue: Member[],
+  nextIndex: number,
+  transparentDates: Set<string>,
+  allFutureDatesFromToday: string[],
+  targetDate: string,
+): Member | null {
+  if (queue.length === 0) return null;
+  let effectiveOffset = 0;
+  for (const d of allFutureDatesFromToday) {
+    if (d === targetDate) return queue[(nextIndex + effectiveOffset) % queue.length] ?? null;
+    if (!transparentDates.has(d)) effectiveOffset++;
+  }
+  return null;
+}
+
 export interface RetroactiveAssignment {
   date: Date;
   member: Member | null;

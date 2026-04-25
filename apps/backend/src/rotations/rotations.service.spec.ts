@@ -21,7 +21,11 @@ function makeOrmMock(
   const em = {
     findOne: vi.fn().mockImplementation(overrides.findOne ?? (() => Promise.resolve(null))),
     find: vi.fn().mockImplementation(overrides.find ?? (() => Promise.resolve([]))),
-    persist: vi.fn(),
+    persist: vi.fn().mockImplementation((entity: Record<string, unknown>) => {
+      const now = new Date('2026-01-01T00:00:00Z');
+      entity['createdAt'] ??= now;
+      entity['updatedAt'] ??= now;
+    }),
     remove: vi.fn(),
     flush: vi.fn().mockImplementation(overrides.flush ?? (() => Promise.resolve())),
     getConnection: vi.fn().mockReturnValue(connection),
@@ -48,9 +52,12 @@ describe('RotationsService', () => {
     it('persists a new rotation and returns a DTO', async () => {
       const orm = makeOrmMock();
       const service = new RotationsService(orm as never);
-      const result = await service.create({ name: 'Dish duty' });
+      const result = await service.create({
+        name: 'Dish duty',
+        schedule: { type: 'custom_date_list' },
+      });
 
-      expect(orm._em.persist).toHaveBeenCalledOnce();
+      expect(orm._em.persist).toHaveBeenCalledTimes(2); // rotation + schedule
       expect(orm._em.flush).toHaveBeenCalledOnce();
       expect(result.name).toBe('Dish duty');
       expect(result.slug).toHaveLength(8);
@@ -69,7 +76,10 @@ describe('RotationsService', () => {
         },
       });
       const service = new RotationsService(orm as never);
-      const result = await service.create({ name: 'Standup host' });
+      const result = await service.create({
+        name: 'Standup host',
+        schedule: { type: 'custom_date_list' },
+      });
 
       expect(callCount).toBe(2);
       expect(result.name).toBe('Standup host');
@@ -81,9 +91,9 @@ describe('RotationsService', () => {
       });
       const service = new RotationsService(orm as never);
 
-      await expect(service.create({ name: 'Test' })).rejects.toBeInstanceOf(
-        InternalServerErrorException,
-      );
+      await expect(
+        service.create({ name: 'Test', schedule: { type: 'custom_date_list' } }),
+      ).rejects.toBeInstanceOf(InternalServerErrorException);
     });
   });
 
@@ -124,8 +134,8 @@ describe('RotationsService', () => {
 
       await service.findBySlug('aBcDeFgH');
 
-      // Fire-and-forget — connection.execute is called but not awaited
-      expect(orm._connection.execute).toHaveBeenCalled();
+      // Fire-and-forget — flush is eventually called from the async lambda
+      await vi.waitFor(() => expect(orm._em.flush).toHaveBeenCalled());
     });
   });
 

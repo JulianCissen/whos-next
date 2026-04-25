@@ -32,11 +32,17 @@ export interface OccurrenceDto {
   memberId: string | null;
   memberName: string | null;
   isPast: boolean;
+  cancelledMemberId: string | null;
+  cancelledMemberName: string | null;
 }
 
+export type CancelOccurrenceResponseDto = OccurrenceDto;
+export type UncancelOccurrenceResponseDto = OccurrenceDto;
+
 export interface OccurrenceWindowDto {
-  previous: OccurrenceDto | null;
+  past: OccurrenceDto[];
   next: OccurrenceDto | null;
+  future: OccurrenceDto[];
 }
 
 export interface BrowseOccurrencesResponseDto {

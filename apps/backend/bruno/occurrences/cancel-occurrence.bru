@@ -1,0 +1,27 @@
+meta {
+  name: Cancel Occurrence (success)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/rotations/{{slug}}/occurrences/{{skipDate}}/cancel
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 200", function() {
+    expect(res.status).to.equal(200);
+  });
+  test("memberId is null (no effective assignee)", function() {
+    expect(res.body.memberId).to.be.null;
+  });
+  test("cancelledMemberId is set", function() {
+    expect(res.body.cancelledMemberId).to.not.be.null;
+    expect(res.body.cancelledMemberName).to.not.be.null;
+  });
+  test("skippedMemberId is null", function() {
+    expect(res.body.skippedMemberId).to.be.null;
+  });
+}

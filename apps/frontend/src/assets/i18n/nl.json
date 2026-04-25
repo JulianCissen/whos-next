@@ -24,13 +24,15 @@
     "not_found_message": "Deze link is ongeldig of de rotatie is verwijderd.",
     "load_error": "Kon rotatie niet laden. Vernieuw de pagina.",
     "copy_link_label": "Rotatie-link kopiëren",
+    "copy_link_tooltip": "Link kopiëren",
     "copy_link": "Link kopiëren",
     "link_copied": "Gekopieerd!",
     "settings_title": "Instellingen",
     "rename_label": "Naam van de rotatie",
     "rename_button": "Hernoemen",
     "rename_error": "Hernoemen mislukt. Probeer opnieuw.",
-    "delete_button": "Rotatie verwijderen"
+    "delete_button": "Rotatie verwijderen",
+    "delete_warning": "Verwijdert deze rotatie en alle bijbehorende gegevens permanent."
   },
   "delete_dialog": {
     "title": "Rotatie verwijderen",
@@ -41,8 +43,17 @@
     "delete_button": "Verwijderen",
     "deleted_snackbar": "Rotatie verwijderd."
   },
+  "queue": {
+    "title": "Wachtrij",
+    "description": "Leden wisselen in deze volgorde"
+  },
   "occurrence": {
     "section_title": "Schema",
+    "hero_label": "Volgende",
+    "label": {
+      "past": "Vorig",
+      "next_up": "Volgende"
+    },
     "previous": "Vorige",
     "next": "Volgende",
     "assigned_to": "Toegewezen aan",
@@ -59,6 +70,16 @@
     },
     "error": {
       "load_failed": "Schema laden mislukt. Vernieuw de pagina."
+    },
+    "skip": {
+      "cancelDate": "Datum annuleren",
+      "cancelDateAriaLabel": "Deze datum annuleren — niemand voert de taak uit",
+      "cancelled": "Geannuleerd",
+      "cancelledWouldHaveBeen": "Zou {{name}} zijn geweest",
+      "cancelFailed": "Annuleren mislukt. Probeer opnieuw.",
+      "uncancelDate": "Datum herstellen",
+      "uncancelFailed": "Herstellen mislukt. Probeer opnieuw.",
+      "dismissAriaLabel": "Sluiten"
     }
   },
   "schedule": {
@@ -103,6 +124,8 @@
     "save_success": "Schema opgeslagen.",
     "switch_type": {
       "button_label": "Schema-type wisselen",
+      "to_recurrence_rule": "Wisselen naar Herhalingsregel",
+      "to_custom_dates": "Wisselen naar Aangepaste datums",
       "confirm_title": "Schema-type wisselen?",
       "confirm_body": "Alle huidige instellingen gaan verloren.",
       "confirm_action": "Wisselen"

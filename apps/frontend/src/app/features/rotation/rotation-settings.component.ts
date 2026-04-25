@@ -17,7 +17,6 @@ import type { RotationResponseDto, ScheduleDto } from '@whos-next/shared';
 import { RotationsApiService } from '../../core/api/rotations.api';
 import { noControlCharsValidator } from '../../shared/validators';
 
-import { AddMemberFormComponent } from './add-member-form/add-member-form.component';
 import { DeleteRotationDialogComponent } from './delete-rotation-dialog.component';
 import { ScheduleConfigComponent } from './schedule-config/schedule-config.component';
 
@@ -34,7 +33,6 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
     MatIconModule,
     MatInputModule,
     TranslateModule,
-    AddMemberFormComponent,
     ScheduleConfigComponent,
   ],
   template: `
@@ -42,13 +40,6 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
       <mat-expansion-panel-header>
         <mat-panel-title>{{ 'rotation.settings_title' | translate }}</mat-panel-title>
       </mat-expansion-panel-header>
-
-      <div class="settings-section">
-        <h3 class="settings-section__title">{{ 'member.add_form.title' | translate }}</h3>
-        <app-add-member-form [slug]="slug()" (memberAdded)="memberAdded.emit()" />
-      </div>
-
-      <mat-divider class="settings-divider" />
 
       <div class="settings-section">
         <app-schedule-config
@@ -61,6 +52,7 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
       <mat-divider class="settings-divider" />
 
       <div class="settings-section">
+        <h3 class="settings-section__title">{{ 'rotation.rename_label' | translate }}</h3>
         <form [formGroup]="renameForm" (ngSubmit)="onRename()" class="rename-form">
           <mat-form-field appearance="outline" class="rename-form__field">
             <mat-label>{{ 'rotation.rename_label' | translate }}</mat-label>
@@ -76,7 +68,7 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
               {{ 'rotation.rename_error' | translate }}
             </p>
           }
-          <button mat-flat-button type="submit" [disabled]="renaming()">
+          <button mat-stroked-button type="submit" [disabled]="renaming()">
             {{ 'rotation.rename_button' | translate }}
           </button>
         </form>
@@ -86,11 +78,11 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
 
       <div class="settings-section settings-section--danger">
         <div class="danger-zone">
-          <p class="danger-zone__label">
-            <mat-icon aria-hidden="true">warning_amber</mat-icon>
-            {{ 'rotation.delete_button' | translate }}
+          <p class="danger-zone__description">
+            {{ 'rotation.delete_warning' | translate }}
           </p>
           <button mat-stroked-button class="delete-btn" (click)="openDeleteDialog()">
+            <mat-icon>delete_forever</mat-icon>
             {{ 'rotation.delete_button' | translate }}
           </button>
         </div>
@@ -106,12 +98,13 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
         box-shadow: none !important;
       }
       .settings-section {
-        padding: 16px 0;
+        padding: 20px 0;
         &__title {
-          margin: 0 0 12px;
+          margin: 0 0 14px;
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 0.875rem;
-          font-weight: 500;
-          color: var(--mat-sys-on-surface-variant);
+          font-weight: 700;
+          color: var(--mat-sys-on-surface);
         }
       }
       .settings-divider {
@@ -134,27 +127,18 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
         align-self: flex-start;
       }
       .danger-zone {
-        border-left: 2px solid var(--mat-sys-error-container);
-        padding-left: 12px;
+        background: color-mix(in srgb, var(--mat-sys-error-container) 40%, transparent);
+        border-radius: 8px;
+        padding: 14px 16px;
         display: flex;
         flex-direction: column;
         gap: 12px;
         align-items: flex-start;
       }
-      .danger-zone__label {
+      .danger-zone__description {
         margin: 0;
         font-size: 0.875rem;
-        font-weight: 500;
         color: var(--mat-sys-on-surface-variant);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-          color: var(--mat-sys-error);
-        }
       }
       .delete-btn {
         --mat-button-outlined-label-text-color: var(--mat-sys-error);
@@ -171,7 +155,6 @@ export class RotationSettingsComponent implements OnInit {
   readonly rotationRenamed = output<RotationResponseDto>();
   readonly rotationDeleted = output<void>();
   readonly scheduleUpdated = output<ScheduleDto>();
-  readonly memberAdded = output<void>();
 
   protected readonly renaming = signal(false);
   protected readonly renameError = signal(false);

@@ -6,20 +6,12 @@ import type { Member } from '../members/member.entity.js';
 import { OccurrenceAssignment } from '../members/occurrence-assignment.entity.js';
 import type { Rotation } from '../rotations/rotation.entity.js';
 
-import { toIsoDate, localYesterday, localToday } from './occurrence.helper.js';
+import { toIsoDate, localYesterday, localToday, deriveFutureMember } from './occurrence.helper.js';
 import { getFutureRecurrenceDatesAfter } from './recurrence.helper.js';
 import { ScheduleDate } from './schedule-date.entity.js';
 import type { Schedule } from './schedule.entity.js';
 
-function derivedMemberForFuture(
-  queue: Member[],
-  nextIndex: number,
-  offset: number,
-): { memberId: string | null; memberName: string | null } {
-  if (queue.length === 0) return { memberId: null, memberName: null };
-  const member = queue[(nextIndex + offset) % queue.length];
-  return { memberId: member?.id ?? null, memberName: member?.name ?? null };
-}
+const MAX_FUTURE_LOOKUP = 10_000;
 
 export async function browseForward(
   em: EntityManager,
@@ -29,25 +21,92 @@ export async function browseForward(
   after: string,
   limit: number,
 ): Promise<BrowseOccurrencesResponseDto> {
-  const anchorDate = new Date(after);
-  let futureDates: Date[];
+  const todayStr = toIsoDate(localToday());
+
+  let pageDates: Date[];
+  let allFutureDatesInRange: string[];
 
   if (schedule.type === 'recurrence_rule') {
-    futureDates = getFutureRecurrenceDatesAfter(schedule, anchorDate, limit + 1);
+    const fromYesterday = getFutureRecurrenceDatesAfter(
+      schedule,
+      localYesterday(),
+      MAX_FUTURE_LOOKUP,
+    );
+    pageDates = fromYesterday.filter((d) => toIsoDate(d) > after).slice(0, limit + 1);
+    const lastPageDateStr = pageDates.slice(0, limit).map(toIsoDate).at(-1) ?? '';
+    allFutureDatesInRange = fromYesterday
+      .map(toIsoDate)
+      .filter((d) => d >= todayStr && d <= lastPageDateStr);
   } else {
     const rows = await em.find(ScheduleDate, { schedule }, { orderBy: { date: 'ASC' } });
-    futureDates = rows
+    pageDates = rows
       .map((r) => new Date(r.date))
       .filter((d) => toIsoDate(d) > after)
       .slice(0, limit + 1);
+    const lastPageDateStr = pageDates.slice(0, limit).map(toIsoDate).at(-1) ?? '';
+    allFutureDatesInRange = rows
+      .map((r) => toIsoDate(new Date(r.date)))
+      .filter((d) => d >= todayStr && d <= lastPageDateStr);
   }
 
-  const hasMore = futureDates.length > limit;
-  const pageDates = futureDates.slice(0, limit);
+  const hasMore = pageDates.length > limit;
+  pageDates = pageDates.slice(0, limit);
+  const pageDateStrs = pageDates.map((d) => toIsoDate(d));
 
-  const occurrences = pageDates.map((date, i): OccurrenceDto => {
-    const { memberId, memberName } = derivedMemberForFuture(queue, rotation.nextIndex, i);
-    return { date: toIsoDate(date), memberId, memberName, isPast: false };
+  const assignments = await em.find(
+    OccurrenceAssignment,
+    { rotation, occurrenceDate: { $in: pageDateStrs } as unknown as string },
+    { populate: ['member'] },
+  );
+  const assignmentMap = new Map(assignments.map((a) => [toIsoDate(new Date(a.occurrenceDate)), a]));
+
+  const transparentInRange = await em.find(OccurrenceAssignment, {
+    rotation,
+    skipType: 'date',
+    occurrenceDate: { $in: allFutureDatesInRange } as unknown as string,
+  });
+  const cancelledFutureDates = new Set(
+    transparentInRange.map((a) => toIsoDate(new Date(a.occurrenceDate))),
+  );
+
+  const occurrences = pageDates.map((date): OccurrenceDto => {
+    const dateStr = toIsoDate(date);
+    const assignment = assignmentMap.get(dateStr) ?? null;
+    if (assignment) {
+      if (assignment.skipType === 'date') {
+        return {
+          date: dateStr,
+          memberId: null,
+          memberName: null,
+          isPast: false,
+          cancelledMemberId: assignment.member?.id ?? null,
+          cancelledMemberName: assignment.member?.name ?? null,
+        };
+      }
+      return {
+        date: dateStr,
+        memberId: assignment.member?.id ?? null,
+        memberName: assignment.member?.name ?? null,
+        isPast: false,
+        cancelledMemberId: null,
+        cancelledMemberName: null,
+      };
+    }
+    const member = deriveFutureMember(
+      queue,
+      rotation.nextIndex,
+      cancelledFutureDates,
+      allFutureDatesInRange,
+      dateStr,
+    );
+    return {
+      date: dateStr,
+      memberId: member?.id ?? null,
+      memberName: member?.name ?? null,
+      isPast: false,
+      cancelledMemberId: null,
+      cancelledMemberName: null,
+    };
   });
 
   // For recurrence-rule, always report hasMore: true (unbounded series)
@@ -66,10 +125,14 @@ export async function browseBackward(
   // Settled past occurrences before the anchor
   const assignments = await em.find(
     OccurrenceAssignment,
-    { rotation },
-    { orderBy: { occurrenceDate: 'DESC' }, limit: limit + 1, populate: ['member'] },
+    { rotation, occurrenceDate: { $lt: before } as unknown as string },
+    {
+      orderBy: { occurrenceDate: 'DESC' },
+      limit: limit + 1,
+      populate: ['member'],
+    },
   );
-  const pastBefore = assignments.filter((a) => toIsoDate(new Date(a.occurrenceDate)) < before);
+  const pastBefore = assignments;
 
   // Unsettled future occurrences before the anchor
   const yesterday = localYesterday();
@@ -81,7 +144,10 @@ export async function browseBackward(
     const todayStr = toIsoDate(localToday());
     allFutureDates = rows.map((r) => new Date(r.date)).filter((d) => toIsoDate(d) >= todayStr);
   }
-  const futureBefore = allFutureDates.filter((d) => toIsoDate(d) < before);
+  const settledDateStrs = new Set(assignments.map((a) => toIsoDate(new Date(a.occurrenceDate))));
+  const futureBefore = allFutureDates
+    .filter((d) => toIsoDate(d) < before)
+    .filter((d) => !settledDateStrs.has(toIsoDate(d)));
 
   // Merge and sort descending
   type Candidate =
@@ -104,15 +170,35 @@ export async function browseBackward(
 
   const occurrences: OccurrenceDto[] = page.map((c) => {
     if (c.kind === 'past') {
+      if (c.a.skipType === 'date') {
+        return {
+          date: c.date,
+          memberId: null,
+          memberName: null,
+          isPast: true,
+          cancelledMemberId: c.a.member?.id ?? null,
+          cancelledMemberName: c.a.member?.name ?? null,
+        };
+      }
       return {
         date: c.date,
         memberId: c.a.member?.id ?? null,
         memberName: c.a.member?.name ?? null,
         isPast: true,
+        cancelledMemberId: null,
+        cancelledMemberName: null,
       };
     }
-    const { memberId, memberName } = derivedMemberForFuture(queue, rotation.nextIndex, c.offset);
-    return { date: c.date, memberId, memberName, isPast: false };
+    const futureMember =
+      queue.length > 0 ? (queue[(rotation.nextIndex + c.offset) % queue.length] ?? null) : null;
+    return {
+      date: c.date,
+      memberId: futureMember?.id ?? null,
+      memberName: futureMember?.name ?? null,
+      isPast: false,
+      cancelledMemberId: null,
+      cancelledMemberName: null,
+    };
   });
 
   return { occurrences, hasMore };

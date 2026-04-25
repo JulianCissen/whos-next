@@ -24,13 +24,15 @@
     "not_found_message": "This link may be invalid or the rotation has been deleted.",
     "load_error": "Failed to load rotation. Please refresh.",
     "copy_link_label": "Copy rotation link",
+    "copy_link_tooltip": "Copy link",
     "copy_link": "Copy link",
     "link_copied": "Copied!",
     "settings_title": "Settings",
     "rename_label": "Rotation name",
     "rename_button": "Rename",
     "rename_error": "Failed to rename. Please try again.",
-    "delete_button": "Delete rotation"
+    "delete_button": "Delete rotation",
+    "delete_warning": "Permanently deletes this rotation and all its data."
   },
   "delete_dialog": {
     "title": "Delete rotation",
@@ -41,8 +43,17 @@
     "delete_button": "Delete",
     "deleted_snackbar": "Rotation deleted."
   },
+  "queue": {
+    "title": "Queue",
+    "description": "Members rotate in this order"
+  },
   "occurrence": {
     "section_title": "Schedule",
+    "hero_label": "Next up",
+    "label": {
+      "past": "Past",
+      "next_up": "Next up"
+    },
     "previous": "Previous",
     "next": "Next",
     "assigned_to": "Assigned to",
@@ -59,6 +70,16 @@
     },
     "error": {
       "load_failed": "Failed to load schedule. Please refresh."
+    },
+    "skip": {
+      "cancelDate": "Cancel date",
+      "cancelDateAriaLabel": "Cancel this date — no one performs the task",
+      "cancelled": "Cancelled",
+      "cancelledWouldHaveBeen": "Would have been {{name}}",
+      "cancelFailed": "Failed to cancel. Please try again.",
+      "uncancelDate": "Restore date",
+      "uncancelFailed": "Failed to restore. Please try again.",
+      "dismissAriaLabel": "Dismiss"
     }
   },
   "schedule": {
@@ -103,6 +124,8 @@
     "save_success": "Schedule saved.",
     "switch_type": {
       "button_label": "Switch schedule type",
+      "to_recurrence_rule": "Switch to Recurrence rule",
+      "to_custom_dates": "Switch to Custom dates",
       "confirm_title": "Switch schedule type?",
       "confirm_body": "All current configuration will be lost.",
       "confirm_action": "Switch"

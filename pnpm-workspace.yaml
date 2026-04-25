@@ -10,4 +10,5 @@ catalog:
 onlyBuiltDependencies:
   - '@angular/build'
   - '@nestjs/core'
+  - better-sqlite3
   - esbuild

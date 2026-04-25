@@ -13,6 +13,7 @@ export const OccurrenceAssignmentSchema = defineEntity({
     rotation: p.manyToOne(Rotation).joinColumn('rotation_id'),
     occurrenceDate: p.date(),
     member: p.manyToOne(Member).joinColumn('member_id'),
+    skipType: p.string().nullable(),
   },
 });
 
@@ -20,6 +21,7 @@ export class OccurrenceAssignment extends BaseEntity {
   declare rotation: Rotation;
   declare occurrenceDate: string;
   declare member: Member;
+  declare skipType: 'date' | null;
 }
 
 OccurrenceAssignmentSchema.setClass(OccurrenceAssignment);

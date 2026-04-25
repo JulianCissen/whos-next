@@ -8,7 +8,7 @@
     "build": "nest build",
     "migrate": "mikro-orm migration:up",
     "start": "node dist/apps/backend/src/main",
-    "start:dev": "nest start --watch --preserveWatchOutput",
+    "start:dev": "nest start --watch --preserveWatchOutput --no-shell",
     "start:docker": "pnpm run migrate && pnpm run start:dev",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -18,6 +18,7 @@
     "@mikro-orm/migrations": "^7.0.11",
     "@mikro-orm/nestjs": "^7.0.1",
     "@mikro-orm/postgresql": "^7.0.11",
+    "@mikro-orm/sqlite": "^7.0.11",
     "@nestjs/common": "^11.1.19",
     "@nestjs/core": "^11.1.19",
     "@nestjs/platform-express": "^11.1.19",

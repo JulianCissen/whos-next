@@ -15,9 +15,23 @@
       "mcp__chrome-devtools-mcp__evaluate_script",
       "Bash(pnpm -w run lint)",
       "Bash(./dev.sh up *)",
-      "Bash(./dev.sh down *)"
+      "Bash(./dev.sh down *)",
+      "Bash(pnpm run *)",
+      "Bash(npx tsc *)",
+      "mcp__chrome-devtools-mcp__take_snapshot",
+      "mcp__chrome-devtools-mcp__get_console_message",
+      "mcp__chrome-devtools-mcp__click",
+      "mcp__chrome-devtools-mcp__fill",
+      "Bash(pnpm exec *)",
+      "mcp__chrome-devtools-mcp__hover",
+      "Bash(pnpm --filter backend run test)",
+      "Bash(pnpm --filter backend run test -- --reporter=verbose src/schedule)",
+      "Bash(npx vitest *)",
+      "WebFetch(domain:mikro-orm.io)"
     ]
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["chrome-devtools-mcp"]
+  "enabledMcpjsonServers": [
+    "chrome-devtools-mcp"
+  ]
 }

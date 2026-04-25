@@ -13,10 +13,7 @@ export const RotationSchema = defineEntity({
   properties: {
     slug: p.string().unique(),
     name: p.string(),
-    lastAccessedAt: p
-      .datetime()
-      .defaultRaw('NOW()')
-      .onCreate(() => new Date()),
+    lastAccessedAt: p.datetime().onCreate(() => new Date()),
     nextIndex: p.integer().default(0),
   },
 });

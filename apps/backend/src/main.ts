@@ -13,6 +13,7 @@ async function bootstrap(): Promise<void> {
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
   );
   const port = process.env['BACKEND_PORT'] ?? 3000;
+  app.enableShutdownHooks();
   await app.listen(port);
 }
 

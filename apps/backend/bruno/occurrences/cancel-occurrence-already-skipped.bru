@@ -1,0 +1,20 @@
+meta {
+  name: Cancel Occurrence (already skipped)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/rotations/{{slug}}/occurrences/{{skipDate}}/cancel
+  body: none
+  auth: none
+}
+
+tests {
+  test("status is 409", function() {
+    expect(res.status).to.equal(409);
+  });
+  test("error code is OCCURRENCE_ALREADY_SKIPPED", function() {
+    expect(res.body.error).to.equal("OCCURRENCE_ALREADY_SKIPPED");
+  });
+}

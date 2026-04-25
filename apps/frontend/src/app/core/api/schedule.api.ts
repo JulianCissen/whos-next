@@ -5,11 +5,13 @@ import type { Observable } from 'rxjs';
 import type {
   AddCustomDateRequestDto,
   BrowseOccurrencesResponseDto,
+  CancelOccurrenceResponseDto,
   ConfigureRecurrenceRuleRequestDto,
   CustomDateDto,
   OccurrenceWindowDto,
   ScheduleDto,
   SwitchScheduleTypeRequestDto,
+  UncancelOccurrenceResponseDto,
 } from '@whos-next/shared';
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +56,19 @@ export class OccurrencesApiService {
     if (params.limit !== undefined) query.set('limit', String(params.limit));
     return this.http.get<BrowseOccurrencesResponseDto>(
       `/api/rotations/${slug}/occurrences/browse?${query.toString()}`,
+    );
+  }
+
+  cancelOccurrence(slug: string, date: string): Observable<CancelOccurrenceResponseDto> {
+    return this.http.post<CancelOccurrenceResponseDto>(
+      `/api/rotations/${slug}/occurrences/${date}/cancel`,
+      {},
+    );
+  }
+
+  uncancelOccurrence(slug: string, date: string): Observable<UncancelOccurrenceResponseDto> {
+    return this.http.delete<UncancelOccurrenceResponseDto>(
+      `/api/rotations/${slug}/occurrences/${date}/cancel`,
     );
   }
 }

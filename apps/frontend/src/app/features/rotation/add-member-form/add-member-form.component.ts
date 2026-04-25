@@ -8,6 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import type { ElementRef } from '@angular/core';
 import type { AbstractControl, ValidationErrors } from '@angular/forms';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -47,30 +48,21 @@ import { MembersApiService } from '../../../core/api/members.api';
         padding-top: 8px;
       }
 
-      .input-row {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-      }
-
       .name-field {
-        flex: 1;
-        min-width: 0;
+        width: 100%;
       }
 
-      .placement-toggle {
-        flex-shrink: 0;
-        margin-top: 8px;
+      .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
       }
 
       .form-error {
         margin: 0;
         font-size: 0.875rem;
         color: var(--mat-sys-error);
-      }
-
-      button[type='submit'] {
-        align-self: flex-start;
       }
     `,
   ],
@@ -85,6 +77,7 @@ export class AddMemberFormComponent {
   readonly genericError = signal(false);
 
   @ViewChild(FormGroupDirective) private formDir!: FormGroupDirective;
+  @ViewChild('nameInput') private nameInputRef!: ElementRef<HTMLInputElement>;
 
   private readonly api = inject(MembersApiService);
   private readonly fb = inject(FormBuilder);
@@ -122,6 +115,7 @@ export class AddMemberFormComponent {
         this.submitting.set(false);
         this.memberAdded.emit(member);
         this.cdr.markForCheck();
+        setTimeout(() => this.nameInputRef.nativeElement.focus(), 0);
       },
       error: (err: { status?: number }) => {
         this.submitting.set(false);

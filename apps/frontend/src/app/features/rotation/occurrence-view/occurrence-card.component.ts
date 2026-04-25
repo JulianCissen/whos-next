@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  signal,
+} from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule } from '@ngx-translate/core';
 
 import type { OccurrenceDto } from '@whos-next/shared';
@@ -8,89 +15,162 @@ import type { OccurrenceDto } from '@whos-next/shared';
   selector: 'app-occurrence-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatCardModule, TranslateModule],
+  imports: [MatButtonModule, TranslateModule],
   template: `
-    <mat-card
-      appearance="outlined"
-      class="occurrence-card"
-      [class.occurrence-card--next]="!isPreviousLabel"
+    <div
+      class="occ-card"
+      [class.occ-card--past]="kind === 'past'"
+      [class.occ-card--current]="kind === 'current'"
+      [class.occ-card--future]="kind === 'future'"
     >
-      <mat-card-header>
-        <mat-card-subtitle>{{ label }}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        @if (occurrence) {
-          <p class="occurrence-card__date">{{ occurrence.date }}</p>
-          @if (occurrence.memberName) {
-            <p class="occurrence-card__member">{{ occurrence.memberName }}</p>
-            <p class="occurrence-card__assigned-label">
-              {{ 'occurrence.assigned_to' | translate }}
-            </p>
+      @if (kind !== 'future') {
+        <div class="occ-card__top">
+          <span
+            class="occ-card__chip"
+            [class.occ-card__chip--past]="kind === 'past'"
+            [class.occ-card__chip--current]="kind === 'current'"
+          >
+            {{
+              (kind === 'past' ? 'occurrence.label.past' : 'occurrence.label.next_up') | translate
+            }}
+          </span>
+          @if (occurrence && kind === 'current' && canSkip && !occurrence.cancelledMemberId) {
+            <button
+              mat-button
+              type="button"
+              class="occ-card__skip-trigger"
+              (click)="onCancelDate()"
+            >
+              {{ 'occurrence.skip.cancelDate' | translate }}
+            </button>
+          } @else if (occurrence && kind === 'current' && canSkip && occurrence.cancelledMemberId) {
+            <button
+              mat-button
+              type="button"
+              class="occ-card__restore-trigger"
+              (click)="onUncancelDate()"
+            >
+              {{ 'occurrence.skip.uncancelDate' | translate }}
+            </button>
+          }
+        </div>
+      } @else if (occurrence && canSkip && !occurrence.cancelledMemberId) {
+        <div class="occ-card__top occ-card__top--skip-only">
+          <button
+            mat-button
+            type="button"
+            class="occ-card__skip-trigger occ-card__skip-trigger--future"
+            (click)="onCancelDate()"
+          >
+            {{ 'occurrence.skip.cancelDate' | translate }}
+          </button>
+        </div>
+      } @else if (occurrence && canSkip && occurrence.cancelledMemberId) {
+        <div class="occ-card__top occ-card__top--skip-only">
+          <button
+            mat-button
+            type="button"
+            class="occ-card__restore-trigger"
+            (click)="onUncancelDate()"
+          >
+            {{ 'occurrence.skip.uncancelDate' | translate }}
+          </button>
+        </div>
+      }
+
+      @if (occurrence) {
+        @if (occurrence.cancelledMemberId) {
+          <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
+          <span class="occ-card__cancelled-label">
+            {{ 'occurrence.skip.cancelled' | translate }}
+          </span>
+          <span class="occ-card__cancelled-member">
+            {{
+              'occurrence.skip.cancelledWouldHaveBeen'
+                | translate: { name: occurrence.cancelledMemberName }
+            }}
+          </span>
+        } @else if (occurrence.memberName) {
+          @if (kind === 'past') {
+            <div class="occ-card__inline-row">
+              <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
+              <span class="occ-card__separator">·</span>
+              <span class="occ-card__member">{{ occurrence.memberName }}</span>
+            </div>
           } @else {
-            <p class="occurrence-card__member occurrence-card__member--empty">
-              {{ 'occurrence.empty_state.no_member' | translate }}
-            </p>
+            <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
+            <div class="occ-card__member-row">
+              <div class="occ-card__avatar">{{ occurrence.memberName[0]?.toUpperCase() }}</div>
+              <span class="occ-card__member">{{ occurrence.memberName }}</span>
+            </div>
           }
         } @else {
-          <p class="occurrence-card__empty">
-            @if (isPreviousLabel) {
-              {{ 'occurrence.empty_state.no_history' | translate }}
-            } @else {
-              {{ 'occurrence.empty_state.no_upcoming' | translate }}
-            }
-          </p>
+          @if (kind === 'past') {
+            <div class="occ-card__inline-row">
+              <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
+              <span class="occ-card__separator">·</span>
+              <span class="occ-card__member occ-card__member--empty">
+                {{ 'occurrence.empty_state.no_member' | translate }}
+              </span>
+            </div>
+          } @else {
+            <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
+            <span class="occ-card__member occ-card__member--empty">
+              {{ 'occurrence.empty_state.no_member' | translate }}
+            </span>
+          }
         }
-      </mat-card-content>
-    </mat-card>
-  `,
-  styles: [
-    `
-      .occurrence-card {
-        min-width: 200px;
-        flex: 1;
-        transition: background-color 200ms ease;
 
-        &--next {
-          background-color: var(--mat-sys-primary-container);
-          border-color: var(--mat-sys-primary-container);
+        @if (cancelError()) {
+          <span class="occ-card__error" role="alert">
+            {{
+              (occurrence.cancelledMemberId
+                ? 'occurrence.skip.uncancelFailed'
+                : 'occurrence.skip.cancelFailed'
+              ) | translate
+            }}
+          </span>
         }
+      } @else {
+        <span class="occ-card__empty">
+          @if (kind === 'past') {
+            {{ 'occurrence.empty_state.no_history' | translate }}
+          } @else {
+            {{ 'occurrence.empty_state.no_upcoming' | translate }}
+          }
+        </span>
       }
-      .occurrence-card--next .occurrence-card__date {
-        color: var(--mat-sys-on-primary-container);
-      }
-      .occurrence-card--next .occurrence-card__member {
-        color: var(--mat-sys-on-primary-container);
-      }
-      .occurrence-card__date {
-        font-size: 1rem;
-        font-weight: 500;
-        letter-spacing: 0.01em;
-        margin: 0 0 4px;
-        color: var(--mat-sys-on-surface-variant);
-      }
-      .occurrence-card__member {
-        margin: 0;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 1.25rem;
-        font-weight: 600;
-        line-height: 1.4;
-        color: var(--mat-sys-on-surface);
-      }
-      .occurrence-card__assigned-label {
-        margin: 2px 0 0;
-        font-size: 0.75rem;
-        color: var(--mat-sys-on-surface-variant);
-      }
-      .occurrence-card__empty {
-        color: var(--mat-sys-on-surface-variant);
-        font-style: italic;
-        margin: 0;
-      }
-    `,
-  ],
+    </div>
+  `,
+  styleUrl: './occurrence-card.component.scss',
 })
 export class OccurrenceCardComponent {
   @Input() occurrence: OccurrenceDto | null = null;
-  @Input() label = '';
-  @Input() isPreviousLabel = false;
+  @Input() kind: 'past' | 'current' | 'future' = 'future';
+  @Input() canSkip = false;
+  @Input() set showCancelError(v: boolean) {
+    this.cancelError.set(v);
+  }
+  @Output() readonly cancelDate = new EventEmitter<void>();
+  @Output() readonly uncancelDate = new EventEmitter<void>();
+
+  protected readonly cancelError = signal(false);
+
+  protected onCancelDate(): void {
+    this.cancelError.set(false);
+    this.cancelDate.emit();
+  }
+
+  protected onUncancelDate(): void {
+    this.cancelError.set(false);
+    this.uncancelDate.emit();
+  }
+
+  protected formatDate(iso: string): string {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    });
+  }
 }

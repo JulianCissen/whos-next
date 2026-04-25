@@ -2,15 +2,24 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import type { OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { MemberDto, RotationResponseDto, ScheduleDto } from '@whos-next/shared';
+import type {
+  AddMemberResponseDto,
+  MemberDto,
+  RotationResponseDto,
+  ScheduleDto,
+} from '@whos-next/shared';
 
 import { MembersApiService } from '../../core/api/members.api';
 import { RotationsApiService } from '../../core/api/rotations.api';
 
+import { AddMemberFormComponent } from './add-member-form/add-member-form.component';
 import { MemberQueueComponent } from './member-queue/member-queue.component';
 import { OccurrenceViewComponent } from './occurrence-view/occurrence-view.component';
 import { RotationSettingsComponent } from './rotation-settings.component';
@@ -22,8 +31,12 @@ import { RotationSettingsComponent } from './rotation-settings.component';
   imports: [
     MatButtonModule,
     MatCardModule,
+    MatDividerModule,
+    MatExpansionModule,
     MatIconModule,
+    MatTooltipModule,
     TranslateModule,
+    AddMemberFormComponent,
     MemberQueueComponent,
     OccurrenceViewComponent,
     RotationSettingsComponent,
@@ -39,54 +52,68 @@ import { RotationSettingsComponent } from './rotation-settings.component';
       <div class="page-container">
         <header class="rotation-header">
           <p class="rotation-header__label">Rotation</p>
-          <h1 class="rotation-header__title">{{ rotation()!.name }}</h1>
-          <div class="share-url-bar">
-            <div class="share-url-bar__pill">
-              <mat-icon aria-hidden="true">link</mat-icon>
-              <code class="share-url-bar__url">{{ currentUrl }}</code>
-            </div>
+          <div class="rotation-header__title-row">
+            <h1 class="rotation-header__title">{{ rotation()!.name }}</h1>
             <button
-              mat-stroked-button
+              mat-icon-button
+              class="rotation-header__copy-btn"
               (click)="copyUrl()"
               [attr.aria-label]="'rotation.copy_link_label' | translate"
+              [matTooltip]="'rotation.copy_link_tooltip' | translate"
             >
               <mat-icon>{{ urlCopied() ? 'check' : 'content_copy' }}</mat-icon>
-              {{
-                urlCopied()
-                  ? ('rotation.link_copied' | translate)
-                  : ('rotation.copy_link' | translate)
-              }}
             </button>
           </div>
         </header>
 
-        <mat-card appearance="outlined" class="section-card section-card--hero">
-          <mat-card-header>
-            <mat-card-title>{{ 'occurrence.section_title' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            @if (rotation()!.schedule) {
-              <app-occurrence-view
-                [slug]="rotation()!.slug"
-                [scheduleVersion]="scheduleVersion()"
-              />
-            } @else {
-              <p class="occurrence-empty-state">
-                {{ 'occurrence.empty_state.no_schedule' | translate }}
-              </p>
-            }
-          </mat-card-content>
-        </mat-card>
+        <section class="schedule-section">
+          @if (rotation()!.schedule) {
+            <app-occurrence-view
+              [slug]="rotation()!.slug"
+              [scheduleVersion]="scheduleVersion()"
+              [activeMemberCount]="members().length"
+              [schedule]="rotation()!.schedule"
+            />
+          } @else {
+            <p class="occurrence-empty-state">
+              {{ 'occurrence.empty_state.no_schedule' | translate }}
+            </p>
+          }
+        </section>
 
         <mat-card appearance="outlined" class="section-card section-card--queue">
+          <mat-card-header>
+            <div class="queue-header">
+              <div class="queue-header__text">
+                <mat-card-title class="queue-title">{{ 'queue.title' | translate }}</mat-card-title>
+                <mat-card-subtitle class="queue-subtitle">
+                  {{ 'queue.description' | translate }}
+                </mat-card-subtitle>
+              </div>
+              <span class="queue-count">{{ members().length }}</span>
+            </div>
+          </mat-card-header>
           <mat-card-content>
             <app-member-queue
               [members]="members()"
+              [highlightMemberId]="lastAddedMemberId()"
               (memberRemoved)="onMemberRemoved($event)"
               (membersReordered)="onMembersReordered($event)"
             />
           </mat-card-content>
         </mat-card>
+
+        <mat-expansion-panel
+          class="add-member-panel"
+          [expanded]="addMemberExpanded()"
+          (opened)="addMemberExpanded.set(true)"
+          (closed)="addMemberExpanded.set(false)"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>{{ 'member.add_form.title' | translate }}</mat-panel-title>
+          </mat-expansion-panel-header>
+          <app-add-member-form [slug]="rotation()!.slug" (memberAdded)="onMemberAdded($event)" />
+        </mat-expansion-panel>
 
         <app-rotation-settings
           [slug]="rotation()!.slug"
@@ -95,7 +122,6 @@ import { RotationSettingsComponent } from './rotation-settings.component';
           (rotationRenamed)="onRotationRenamed($event)"
           (rotationDeleted)="onRotationDeleted()"
           (scheduleUpdated)="onScheduleUpdated($event)"
-          (memberAdded)="onMemberAdded()"
         />
       </div>
     }
@@ -114,6 +140,8 @@ export class RotationPage implements OnInit {
   readonly members = signal<MemberDto[]>([]);
   readonly urlCopied = signal(false);
   readonly scheduleVersion = signal(0);
+  readonly lastAddedMemberId = signal<string | null>(null);
+  readonly addMemberExpanded = signal(false);
 
   protected readonly currentUrl = globalThis.location.href;
 
@@ -132,6 +160,7 @@ export class RotationPage implements OnInit {
       next: (rotation) => {
         this.rotation.set(rotation);
         this.members.set(rotation.members ?? []);
+        this.addMemberExpanded.set((rotation.members ?? []).length < 2);
         this.loading.set(false);
       },
       error: () => {
@@ -141,12 +170,14 @@ export class RotationPage implements OnInit {
     });
   }
 
-  onMemberAdded(): void {
+  onMemberAdded(added: AddMemberResponseDto): void {
     const slug = this.rotation()?.slug ?? '';
     this.api.get(slug).subscribe({
       next: (rotation) => {
         this.rotation.set(rotation);
         this.members.set(rotation.members ?? []);
+        this.scheduleVersion.update((v) => v + 1);
+        this.lastAddedMemberId.set(added.id);
       },
     });
   }
@@ -159,6 +190,7 @@ export class RotationPage implements OnInit {
           next: (rotation) => {
             this.rotation.set(rotation);
             this.members.set(rotation.members ?? []);
+            this.scheduleVersion.update((v) => v + 1);
           },
         });
       },
@@ -170,6 +202,7 @@ export class RotationPage implements OnInit {
     this.membersApi.reorderMembers(slug, { memberIds }).subscribe({
       next: (result) => {
         this.members.set(result.members);
+        this.scheduleVersion.update((v) => v + 1);
       },
     });
   }

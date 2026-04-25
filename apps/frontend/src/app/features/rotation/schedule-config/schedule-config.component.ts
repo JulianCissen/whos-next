@@ -117,7 +117,12 @@ import { CustomDatesListComponent } from './custom-dates-list.component.js';
       }
       @if (slug() && schedule()) {
         <button mat-stroked-button class="schedule-config__switch-btn" (click)="onSwitchType()">
-          {{ 'schedule.switch_type.button_label' | translate }}
+          {{
+            (selectedType() === 'recurrence_rule'
+              ? 'schedule.switch_type.to_custom_dates'
+              : 'schedule.switch_type.to_recurrence_rule'
+            ) | translate
+          }}
         </button>
       }
     </div>

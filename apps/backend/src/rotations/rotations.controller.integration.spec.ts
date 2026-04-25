@@ -1,6 +1,6 @@
-import { MikroORM } from '@mikro-orm/postgresql';
+import { MikroORM } from '@mikro-orm/core';
 import { ValidationPipe } from '@nestjs/common';
-import type { NestFastifyApplication } from '@nestjs/platform-fastify';
+import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { TestingModule } from '@nestjs/testing';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -9,7 +9,9 @@ import type { RotationResponseDto } from '@whos-next/shared';
 
 import { AppModule } from '../app.module.js';
 
-let app: NestFastifyApplication;
+import { Rotation } from './rotation.entity.js';
+
+let app: INestApplication;
 let orm: MikroORM;
 
 beforeAll(async () => {
@@ -23,7 +25,7 @@ beforeAll(async () => {
   );
   await app.init();
   orm = module.get(MikroORM);
-  await orm.getMigrator().up();
+  await orm.migrator.up();
 });
 
 afterAll(async () => {
@@ -32,7 +34,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  await orm.em.fork().execute(`DELETE FROM rotations`);
+  await orm.em.fork().nativeDelete(Rotation, {});
 });
 
 describe('POST /api/rotations', () => {

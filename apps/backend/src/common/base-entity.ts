@@ -10,15 +10,10 @@ export const BaseEntitySchema = defineEntity({
       .uuid()
       .primary()
       .hidden()
-      .defaultRaw('gen_random_uuid()')
       .onCreate(() => randomUUID()),
-    createdAt: p
-      .datetime()
-      .defaultRaw('NOW()')
-      .onCreate(() => new Date()),
+    createdAt: p.datetime().onCreate(() => new Date()),
     updatedAt: p
       .datetime()
-      .defaultRaw('NOW()')
       .onCreate(() => new Date())
       .onUpdate(() => new Date()),
   },

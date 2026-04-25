@@ -5,6 +5,7 @@
   "description": "Who's Next — shared TypeScript types (DTOs and interfaces)",
   "type": "commonjs",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json --watch --preserveWatchOutput"
