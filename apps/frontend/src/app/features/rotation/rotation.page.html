@@ -90,7 +90,7 @@
               }}</span>
             }
           </header>
-          @if (rotation()!.schedule) {
+          @if (rotation()!.schedule && members().length >= 1) {
             <app-occurrence-view
               [slug]="rotation()!.slug"
               [scheduleVersion]="scheduleVersion()"
@@ -98,6 +98,10 @@
               [schedule]="rotation()!.schedule"
               (windowLoaded)="onWindowLoaded($event)"
             />
+          } @else if (rotation()!.schedule) {
+            <p class="occurrence-empty-state">
+              {{ 'occurrence.empty_state.no_members' | translate }}
+            </p>
           } @else {
             <p class="occurrence-empty-state">
               {{ 'occurrence.empty_state.no_schedule' | translate }}

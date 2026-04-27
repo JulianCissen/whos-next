@@ -106,6 +106,7 @@
       "no_history": "No occurrences yet.",
       "no_upcoming": "No upcoming occurrence.",
       "no_member": "No member assigned.",
+      "no_members": "Add members to see upcoming turns.",
       "no_schedule": "No schedule configured yet."
     },
     "next_turns": "Next {{n}} turns",

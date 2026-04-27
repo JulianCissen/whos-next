@@ -106,6 +106,7 @@
       "no_history": "Nog geen voorvallen.",
       "no_upcoming": "Geen aankomend voorval.",
       "no_member": "Geen lid toegewezen.",
+      "no_members": "Voeg leden toe om aankomende beurten te zien.",
       "no_schedule": "Nog geen schema geconfigureerd."
     },
     "next_turns": "Volgende {{n}} beurten",
