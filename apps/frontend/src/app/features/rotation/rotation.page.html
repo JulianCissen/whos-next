@@ -15,7 +15,9 @@
   <div class="page-container rotation-page">
     <app-pill-app-bar>
       <div slot="left" class="rotation-nav">
-        <a class="rotation-nav__back" routerLink="/">←</a>
+        <a class="rotation-nav__back" routerLink="/">
+          ← <span class="rotation-nav__back-label">{{ 'nav.back_to_rotations' | translate }}</span>
+        </a>
         <span class="rotation-nav__divider" aria-hidden="true">·</span>
         <span class="rotation-nav__name">{{ rotation()!.name }}</span>
         @if (cadenceChip()) {

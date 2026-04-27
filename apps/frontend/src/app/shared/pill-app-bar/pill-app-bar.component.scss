@@ -36,10 +36,14 @@
 
 .pill-bar__sep {
   display: none;
-  width: 1px;
-  height: 20px;
-  background: var(--mat-sys-outline-variant);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 18px;
+  line-height: 1;
   flex-shrink: 0;
+
+  &::before {
+    content: '·';
+  }
 }
 
 @media (min-width: 641px) {

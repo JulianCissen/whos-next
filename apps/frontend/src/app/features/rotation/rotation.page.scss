@@ -20,6 +20,10 @@
   min-width: 0;
 }
 
+.rotation-nav__divider {
+  color: var(--mat-sys-on-surface-variant);
+}
+
 .rotation-nav__back {
   font-size: 13px;
   font-weight: 500;
@@ -30,6 +34,12 @@
 
   &:hover {
     color: var(--mat-sys-on-surface);
+  }
+}
+
+.rotation-nav__back-label {
+  @media (max-width: 640px) {
+    display: none;
   }
 }
 
