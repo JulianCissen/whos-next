@@ -4,143 +4,77 @@ import {
   EventEmitter,
   Input,
   Output,
+  computed,
+  inject,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule } from '@ngx-translate/core';
 
 import type { OccurrenceDto } from '@whos-next/shared';
+
+import { LanguageService } from '../../../core/language.service.js';
 
 @Component({
   selector: 'app-occurrence-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, TranslateModule],
+  imports: [MatIconModule, MatMenuModule, TranslateModule],
   template: `
-    <div
-      class="occ-card"
-      [class.occ-card--past]="kind === 'past'"
-      [class.occ-card--current]="kind === 'current'"
-      [class.occ-card--future]="kind === 'future'"
-    >
-      @if (kind !== 'future') {
-        <div class="occ-card__top">
-          <span
-            class="occ-card__chip"
-            [class.occ-card__chip--past]="kind === 'past'"
-            [class.occ-card__chip--current]="kind === 'current'"
-          >
-            {{
-              (kind === 'past' ? 'occurrence.label.past' : 'occurrence.label.next_up') | translate
-            }}
+    @if (occurrence) {
+      <span class="occ-row__date" [class.occ-row__date--current]="kind === 'current'">{{
+        formatDate(occurrence.date, currentLang())
+      }}</span>
+      <div
+        class="occ-row__avatar"
+        [class.occ-row__avatar--cancelled]="!!occurrence.cancelledMemberId"
+        [style.background]="occurrence.cancelledMemberId ? null : nameToColor(displayName())"
+      >
+        {{ displayName()[0]?.toUpperCase() }}
+      </div>
+      <div class="occ-row__info">
+        <span
+          class="occ-row__name"
+          [class.occ-row__name--cancelled]="!!occurrence.cancelledMemberId"
+          >{{ displayName() }}</span
+        >
+        @if (kind === 'current' && !occurrence.cancelledMemberId) {
+          <span class="occ-row__sublabel">{{ 'occurrence.label.next_up' | translate }}</span>
+        }
+        @if (occurrence.cancelledMemberId) {
+          <span class="occ-row__sublabel occ-row__sublabel--cancelled">
+            {{ 'occurrence.skip.cancelled' | translate }}
           </span>
-          @if (occurrence && kind === 'current' && canSkip && !occurrence.cancelledMemberId) {
-            <button
-              mat-button
-              type="button"
-              class="occ-card__skip-trigger"
-              (click)="onCancelDate()"
-            >
+        }
+      </div>
+      @if (canSkip) {
+        <button class="occ-row__menu-btn" type="button" [matMenuTriggerFor]="rowMenu">
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #rowMenu>
+          @if (!occurrence.cancelledMemberId) {
+            <button mat-menu-item (click)="onCancelDate()">
               {{ 'occurrence.skip.cancelDate' | translate }}
             </button>
-          } @else if (occurrence && kind === 'current' && canSkip && occurrence.cancelledMemberId) {
-            <button
-              mat-button
-              type="button"
-              class="occ-card__restore-trigger"
-              (click)="onUncancelDate()"
-            >
+          } @else {
+            <button mat-menu-item (click)="onUncancelDate()">
               {{ 'occurrence.skip.uncancelDate' | translate }}
             </button>
           }
-        </div>
-      } @else if (occurrence && canSkip && !occurrence.cancelledMemberId) {
-        <div class="occ-card__top occ-card__top--skip-only">
-          <button
-            mat-button
-            type="button"
-            class="occ-card__skip-trigger occ-card__skip-trigger--future"
-            (click)="onCancelDate()"
-          >
-            {{ 'occurrence.skip.cancelDate' | translate }}
-          </button>
-        </div>
-      } @else if (occurrence && canSkip && occurrence.cancelledMemberId) {
-        <div class="occ-card__top occ-card__top--skip-only">
-          <button
-            mat-button
-            type="button"
-            class="occ-card__restore-trigger"
-            (click)="onUncancelDate()"
-          >
-            {{ 'occurrence.skip.uncancelDate' | translate }}
-          </button>
-        </div>
+        </mat-menu>
       }
-
-      @if (occurrence) {
-        @if (occurrence.cancelledMemberId) {
-          <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
-          <span class="occ-card__cancelled-label">
-            {{ 'occurrence.skip.cancelled' | translate }}
-          </span>
-          <span class="occ-card__cancelled-member">
-            {{
-              'occurrence.skip.cancelledWouldHaveBeen'
-                | translate: { name: occurrence.cancelledMemberName }
-            }}
-          </span>
-        } @else if (occurrence.memberName) {
-          @if (kind === 'past') {
-            <div class="occ-card__inline-row">
-              <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
-              <span class="occ-card__separator">·</span>
-              <span class="occ-card__member">{{ occurrence.memberName }}</span>
-            </div>
-          } @else {
-            <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
-            <div class="occ-card__member-row">
-              <div class="occ-card__avatar">{{ occurrence.memberName[0]?.toUpperCase() }}</div>
-              <span class="occ-card__member">{{ occurrence.memberName }}</span>
-            </div>
-          }
-        } @else {
-          @if (kind === 'past') {
-            <div class="occ-card__inline-row">
-              <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
-              <span class="occ-card__separator">·</span>
-              <span class="occ-card__member occ-card__member--empty">
-                {{ 'occurrence.empty_state.no_member' | translate }}
-              </span>
-            </div>
-          } @else {
-            <span class="occ-card__date">{{ formatDate(occurrence.date) }}</span>
-            <span class="occ-card__member occ-card__member--empty">
-              {{ 'occurrence.empty_state.no_member' | translate }}
-            </span>
-          }
-        }
-
-        @if (cancelError()) {
-          <span class="occ-card__error" role="alert">
-            {{
-              (occurrence.cancelledMemberId
-                ? 'occurrence.skip.uncancelFailed'
-                : 'occurrence.skip.cancelFailed'
-              ) | translate
-            }}
-          </span>
-        }
-      } @else {
-        <span class="occ-card__empty">
-          @if (kind === 'past') {
-            {{ 'occurrence.empty_state.no_history' | translate }}
-          } @else {
-            {{ 'occurrence.empty_state.no_upcoming' | translate }}
-          }
+      @if (cancelError()) {
+        <span class="occ-row__error" role="alert">
+          {{
+            (occurrence.cancelledMemberId
+              ? 'occurrence.skip.uncancelFailed'
+              : 'occurrence.skip.cancelFailed'
+            ) | translate
+          }}
         </span>
       }
-    </div>
+    }
   `,
   styleUrl: './occurrence-card.component.scss',
 })
@@ -154,7 +88,16 @@ export class OccurrenceCardComponent {
   @Output() readonly cancelDate = new EventEmitter<void>();
   @Output() readonly uncancelDate = new EventEmitter<void>();
 
+  private readonly lang = inject(LanguageService);
+
   protected readonly cancelError = signal(false);
+  protected readonly currentLang = computed(() => this.lang.current());
+
+  protected readonly displayName = computed(() => {
+    const occ = this.occurrence;
+    if (!occ) return '';
+    return occ.cancelledMemberId ? (occ.cancelledMemberName ?? '') : (occ.memberName ?? '');
+  });
 
   protected onCancelDate(): void {
     this.cancelError.set(false);
@@ -166,11 +109,18 @@ export class OccurrenceCardComponent {
     this.uncancelDate.emit();
   }
 
-  protected formatDate(iso: string): string {
+  protected formatDate(iso: string, locale: string): string {
     const [y, m, d] = iso.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+    return new Date(y, m - 1, d).toLocaleDateString(locale, {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  protected nameToColor(name: string): string {
+    const hues = [0, 30, 60, 120, 180, 210, 240, 270, 300, 330, 150, 90];
+    let hash = 0;
+    for (const ch of name) hash = (hash * 31 + (ch.codePointAt(0) ?? 0)) & 0xff_ff;
+    return `hsl(${hues[hash % hues.length]}, 65%, 42%)`;
   }
 }

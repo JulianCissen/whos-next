@@ -2,12 +2,7 @@ import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
 import { TranslateModule } from '@ngx-translate/core';
 import { merge } from 'rxjs';
 
@@ -29,73 +24,78 @@ import { CustomDatesListComponent } from './custom-dates-list.component.js';
   selector: 'app-schedule-config',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRadioModule,
-    MatSelectModule,
-    TranslateModule,
-    CustomDatesListComponent,
-  ],
+  imports: [ReactiveFormsModule, MatButtonModule, TranslateModule, CustomDatesListComponent],
   template: `
     <div class="schedule-config">
-      <h3 class="schedule-config__title">{{ 'schedule.section_title' | translate }}</h3>
+      @if (!hideTitle()) {
+        <h3 class="schedule-config__title">{{ 'schedule.section_title' | translate }}</h3>
+      }
       @if (!slug()) {
-        <mat-radio-group [formControl]="typeControl" class="schedule-config__type-group">
-          <mat-radio-button value="recurrence_rule">
+        <div class="sc__toggle" role="group">
+          <button
+            type="button"
+            class="sc__btn"
+            [class.sc__btn--on]="typeControl.value === 'recurrence_rule'"
+            (click)="typeControl.setValue('recurrence_rule')"
+          >
             {{ 'schedule.type.recurrence_rule' | translate }}
-          </mat-radio-button>
-          <mat-radio-button value="custom_date_list">
+          </button>
+          <button
+            type="button"
+            class="sc__btn"
+            [class.sc__btn--on]="typeControl.value === 'custom_date_list'"
+            (click)="typeControl.setValue('custom_date_list')"
+          >
             {{ 'schedule.type.custom_date_list' | translate }}
-          </mat-radio-button>
-        </mat-radio-group>
+          </button>
+        </div>
       }
       @if (selectedType() === 'recurrence_rule') {
-        <mat-form-field appearance="outline" class="schedule-config__field">
-          <mat-label>{{ 'schedule.rrule.rule_type_label' | translate }}</mat-label>
-          <mat-select [formControl]="ruleTypeControl">
-            <mat-option value="weekly">{{ 'schedule.rrule.weekly' | translate }}</mat-option>
-            <mat-option value="every_n_weeks">{{
-              'schedule.rrule.every_n_weeks' | translate
-            }}</mat-option>
-            <mat-option value="monthly">{{ 'schedule.rrule.monthly' | translate }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <div class="sc__ctrl-wrap">
+          <span class="sc__ctrl-label">{{ 'schedule.rrule.rule_type_label' | translate }}</span>
+          <select class="sc__select" [formControl]="ruleTypeControl">
+            <option value="weekly">{{ 'schedule.rrule.weekly' | translate }}</option>
+            <option value="every_n_weeks">{{ 'schedule.rrule.every_n_weeks' | translate }}</option>
+            <option value="monthly">{{ 'schedule.rrule.monthly' | translate }}</option>
+          </select>
+        </div>
         @if (ruleType() === 'weekly' || ruleType() === 'every_n_weeks') {
-          <mat-form-field appearance="outline" class="schedule-config__field">
-            <mat-label>{{ 'schedule.rrule.day_of_week.label' | translate }}</mat-label>
-            <mat-select [formControl]="dayOfWeekControl">
+          <div class="sc__ctrl-wrap">
+            <span class="sc__ctrl-label">{{ 'schedule.rrule.day_of_week.label' | translate }}</span>
+            <select class="sc__select" [formControl]="dayOfWeekControl">
               @for (d of weekdays; track d) {
-                <mat-option [value]="d">{{
-                  'schedule.rrule.day_of_week.' + d | translate
-                }}</mat-option>
+                <option [value]="d">{{ 'schedule.rrule.day_of_week.' + d | translate }}</option>
               }
-            </mat-select>
-          </mat-form-field>
+            </select>
+          </div>
         }
         @if (ruleType() === 'every_n_weeks') {
-          <mat-form-field appearance="outline" class="schedule-config__field">
-            <mat-label>{{ 'schedule.rrule.interval_n.label' | translate }}</mat-label>
-            <input matInput type="number" min="2" [formControl]="intervalNControl" />
-          </mat-form-field>
+          <div class="sc__ctrl-wrap">
+            <span class="sc__ctrl-label">{{ 'schedule.rrule.interval_n.label' | translate }}</span>
+            <input class="sc__input" type="number" min="2" [formControl]="intervalNControl" />
+          </div>
         }
         @if (ruleType() === 'monthly') {
-          <mat-form-field appearance="outline" class="schedule-config__field">
-            <mat-label>{{ 'schedule.rrule.monthly_day.label' | translate }}</mat-label>
-            <input matInput type="number" min="1" max="31" [formControl]="monthlyDayControl" />
-          </mat-form-field>
+          <div class="sc__ctrl-wrap">
+            <span class="sc__ctrl-label">{{ 'schedule.rrule.monthly_day.label' | translate }}</span>
+            <input
+              class="sc__input"
+              type="number"
+              min="1"
+              max="31"
+              [formControl]="monthlyDayControl"
+            />
+          </div>
         }
-        <mat-checkbox [formControl]="showStartDateControl">
+        <label class="sc__check">
+          <input type="checkbox" [formControl]="showStartDateControl" />
           {{ 'schedule.start_date.toggle' | translate }}
-        </mat-checkbox>
+        </label>
         @if (showStartDateControl.value) {
-          <mat-form-field appearance="outline" class="schedule-config__field">
-            <mat-label>{{ 'schedule.start_date.label' | translate }}</mat-label>
-            <input matInput type="date" [formControl]="startDateControl" />
-          </mat-form-field>
+          <div class="sc__ctrl-wrap">
+            <span class="sc__ctrl-label">{{ 'schedule.start_date.label' | translate }}</span>
+            <input class="sc__input" type="date" [formControl]="startDateControl" />
+          </div>
         }
         @if (slug()) {
           @if (saveError()) {
@@ -132,6 +132,7 @@ import { CustomDatesListComponent } from './custom-dates-list.component.js';
 export class ScheduleConfigComponent implements OnInit {
   readonly slug = input<string | undefined>();
   readonly schedule = input<ScheduleDto | null>(null);
+  readonly hideTitle = input(false);
 
   readonly scheduleChange = output<CreateRotationScheduleDto>();
   readonly scheduleUpdated = output<ScheduleDto>();
@@ -183,30 +184,29 @@ export class ScheduleConfigComponent implements OnInit {
 
     if (!this.slug()) {
       this.emitScheduleChange();
+    }
+
+    merge(this.typeControl.valueChanges, this.ruleTypeControl.valueChanges).subscribe(() => {
+      this.selectedType.set(this.typeControl.value);
+      this.ruleType.set(this.ruleTypeControl.value);
+      if (!this.slug()) this.emitScheduleChange();
+    });
+
+    if (!this.slug()) {
       merge(
-        this.typeControl.valueChanges,
-        this.ruleTypeControl.valueChanges,
         this.dayOfWeekControl.valueChanges,
         this.intervalNControl.valueChanges,
         this.monthlyDayControl.valueChanges,
         this.showStartDateControl.valueChanges,
         this.startDateControl.valueChanges,
-      ).subscribe(() => {
-        this.selectedType.set(this.typeControl.value);
-        this.ruleType.set(this.ruleTypeControl.value);
-        this.emitScheduleChange();
-      });
+      ).subscribe(() => this.emitScheduleChange());
     }
   }
 
   protected onDatesChanged(dates: string[]): void {
     this.localDates.set(dates);
     const current = this.schedule();
-    const updated: ScheduleDto = {
-      type: 'custom_date_list',
-      startDate: current?.startDate,
-      dates,
-    };
+    const updated: ScheduleDto = { type: 'custom_date_list', startDate: current?.startDate, dates };
     this.scheduleUpdated.emit(updated);
   }
 

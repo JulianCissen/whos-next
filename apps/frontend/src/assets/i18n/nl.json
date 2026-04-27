@@ -4,20 +4,50 @@
     "tagline": "Bijhouden wie er volgende is in jouw rotatie."
   },
   "nav": {
-    "home": "Home"
+    "home": "Home",
+    "back_to_rotations": "Rotaties",
+    "more_actions": "Meer acties"
   },
   "language": {
     "switch_to_dutch": "Nederlands",
-    "switch_to_english": "English"
+    "switch_to_english": "English",
+    "label": "Taal"
   },
   "landing": {
-    "headline": "Start een rotatie",
+    "headline": "Wat houden we bij?",
+    "subheading": "Geef het een naam, stel in hoe vaak het herhaalt. Wij regelen de datums.",
+    "new_rotation_chip": "Nieuwe rotatie",
+    "name_placeholder": "Afwassen, on-call, snackrun…",
     "name_label": "Naam van de rotatie",
-    "name_placeholder": "bijv. Afwassen",
     "name_required": "Een naam is verplicht.",
     "name_max_length": "Naam mag maximaal 100 tekens zijn.",
     "create_button": "Rotatie aanmaken",
-    "create_error": "Er is iets misgegaan. Probeer opnieuw."
+    "create_error": "Er is iets misgegaan. Probeer opnieuw.",
+    "pick_up_title": "Ga verder",
+    "tips_title": "Tips",
+    "tips_tip1": "Leden wisselen in de volgorde waarin je ze toevoegt — versleep om later te sorteren.",
+    "tips_tip2": "Sla een beurt over via het ⋯ menu op een aankomende kaart.",
+    "tips_tip3": "Deel een rotatie via het kopiëerpictogram naast de titel.",
+    "cadence_toggle": "Cadans",
+    "manual_toggle": "Handmatig",
+    "rotations_label": "rotaties",
+    "cadence_chip": {
+      "every_n_weeks": "Elke {{n}}w",
+      "day_short": {
+        "1": "Ma",
+        "2": "Di",
+        "3": "Wo",
+        "4": "Do",
+        "5": "Vr",
+        "6": "Za",
+        "7": "Zo"
+      }
+    }
+  },
+  "theme": {
+    "toggle_label": "Thema wisselen",
+    "switch_to_dark": "Naar donker",
+    "switch_to_light": "Naar licht"
   },
   "rotation": {
     "not_found_heading": "Rotatie niet gevonden",
@@ -45,11 +75,21 @@
   },
   "queue": {
     "title": "Wachtrij",
-    "description": "Leden wisselen in deze volgorde"
+    "description": "Leden wisselen in deze volgorde",
+    "drag_to_reorder": "Versleep om te sorteren",
+    "add_member": "Lid toevoegen"
   },
   "occurrence": {
     "section_title": "Schema",
     "hero_label": "Volgende",
+    "hero": {
+      "up_next_label": "VOLGENDE",
+      "up_next_today": "VANDAAG",
+      "in_1_day": "OVER 1 DAG",
+      "in_n_days": "OVER {{n}} DAGEN",
+      "then_on": "op {{date}}",
+      "then_name_on_date": "dan {{name}} op {{date}}"
+    },
     "label": {
       "past": "Vorig",
       "next_up": "Volgende"
@@ -68,10 +108,12 @@
       "no_member": "Geen lid toegewezen.",
       "no_schedule": "Nog geen schema geconfigureerd."
     },
+    "next_turns": "Volgende {{n}} beurten",
     "error": {
       "load_failed": "Schema laden mislukt. Vernieuw de pagina."
     },
     "skip": {
+      "label": "Overslaan",
       "cancelDate": "Datum annuleren",
       "cancelDateAriaLabel": "Deze datum annuleren — niemand voert de taak uit",
       "cancelled": "Geannuleerd",
@@ -89,12 +131,13 @@
       "custom_date_list": "Aangepaste datums"
     },
     "rrule": {
-      "rule_type_label": "Herhaling",
+      "rule_type_label": "Herhaalt",
       "weekly": "Wekelijks",
-      "every_n_weeks": "Elke N weken",
+      "every_n_weeks": "Elke paar weken",
       "monthly": "Maandelijks",
       "day_of_week": {
         "label": "Dag van de week",
+        "label_compact": "Dag",
         "1": "Maandag",
         "2": "Dinsdag",
         "3": "Woensdag",
@@ -104,7 +147,7 @@
         "7": "Zondag"
       },
       "interval_n": {
-        "label": "Elke hoeveel weken?"
+        "label": "Weken"
       },
       "monthly_day": {
         "label": "Dag van de maand"
@@ -112,7 +155,8 @@
     },
     "start_date": {
       "label": "Startdatum",
-      "toggle": "Stel een startdatum in"
+      "toggle": "Stel een startdatum in",
+      "toggle_compact": "Stel een aangepaste startdatum in"
     },
     "custom_date": {
       "add_label": "Datum toevoegen",
@@ -152,6 +196,7 @@
       "placement_front": "Vooraan",
       "placement_back": "Achteraan",
       "submit_button": "Lid toevoegen",
+      "add_another": "Nog een toevoegen",
       "capacity_error": "De wachtrij is vol (maximaal 100 leden).",
       "generic_error": "Er is iets misgegaan. Probeer opnieuw."
     },

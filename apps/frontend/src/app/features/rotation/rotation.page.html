@@ -1,0 +1,110 @@
+@if (loading()) {
+  <div class="page-container rotation-page" aria-live="polite">
+    <app-pill-app-bar>
+      <a slot="left" class="rotation-nav__back" routerLink="/">
+        ← {{ 'nav.back_to_rotations' | translate }}
+      </a>
+    </app-pill-app-bar>
+    <app-dashboard-skeleton />
+  </div>
+} @else if (loadError()) {
+  <div class="page-container state-message" role="alert">
+    {{ 'rotation.load_error' | translate }}
+  </div>
+} @else if (rotation()) {
+  <div class="page-container rotation-page">
+    <app-pill-app-bar>
+      <div slot="left" class="rotation-nav">
+        <a class="rotation-nav__back" routerLink="/">←</a>
+        <span class="rotation-nav__divider" aria-hidden="true">·</span>
+        <span class="rotation-nav__name">{{ rotation()!.name }}</span>
+        @if (cadenceChip()) {
+          <span class="rotation-nav__cadence">{{ cadenceChip() }}</span>
+        }
+      </div>
+      <div slot="right" class="rotation-nav__desktop-actions">
+        <button
+          class="rotation-nav__share-btn"
+          type="button"
+          (click)="copyUrl()"
+          [attr.aria-label]="'rotation.copy_link_label' | translate"
+        >
+          <mat-icon>share</mat-icon>
+          {{ 'rotation.copy_link' | translate }}
+        </button>
+        <button
+          class="rotation-nav__icon-btn"
+          type="button"
+          (click)="openSettings()"
+          [attr.aria-label]="'rotation.settings_title' | translate"
+        >
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+      <ng-template #overflow>
+        <button mat-menu-item (click)="copyUrl()">
+          <mat-icon>share</mat-icon>
+          {{ 'rotation.copy_link' | translate }}
+        </button>
+        <button mat-menu-item (click)="openSettings()">
+          <mat-icon>settings</mat-icon>
+          {{ 'rotation.settings_title' | translate }}
+        </button>
+      </ng-template>
+    </app-pill-app-bar>
+
+    <div class="rotation-grid">
+      @if (nextOccurrence()) {
+        <app-up-next-hero-card
+          class="rotation-grid__hero"
+          [occurrence]="nextOccurrence()"
+          [afterNext]="afterNextOccurrence()"
+          [canSkip]="members().length >= 1"
+          (skip)="onSkipNext($event)"
+        />
+      }
+      <section class="rotation-grid__queue queue-section">
+        <header class="queue-section__header">
+          <span class="queue-section__title">{{ 'queue.title' | translate }}</span>
+          <span class="queue-section__subtitle">{{ 'queue.drag_to_reorder' | translate }}</span>
+        </header>
+        <app-member-queue
+          [members]="members()"
+          [memberNextDates]="memberNextDates()"
+          [highlightMemberId]="lastAddedMemberId()"
+          (memberRemoved)="onMemberRemoved($event)"
+          (membersReordered)="onMembersReordered($event)"
+        />
+        <button class="queue-add-btn" type="button" (click)="openAddMember()">
+          <mat-icon>person_add</mat-icon>
+          {{ 'queue.add_member' | translate }}
+        </button>
+      </section>
+      <div class="rotation-grid__schedule">
+        <div class="schedule-card">
+          <header class="schedule-card__header">
+            <h3 class="schedule-card__title">{{ 'occurrence.section_title' | translate }}</h3>
+            @if (futureCount() > 0) {
+              <span class="schedule-card__count">{{
+                'occurrence.next_turns' | translate: { n: futureCount() }
+              }}</span>
+            }
+          </header>
+          @if (rotation()!.schedule) {
+            <app-occurrence-view
+              [slug]="rotation()!.slug"
+              [scheduleVersion]="scheduleVersion()"
+              [activeMemberCount]="members().length"
+              [schedule]="rotation()!.schedule"
+              (windowLoaded)="onWindowLoaded($event)"
+            />
+          } @else {
+            <p class="occurrence-empty-state">
+              {{ 'occurrence.empty_state.no_schedule' | translate }}
+            </p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

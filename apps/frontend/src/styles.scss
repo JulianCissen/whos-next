@@ -1,49 +1,91 @@
 @use '@angular/material' as mat;
 
-// Required for foundational structural styles: ripple, overlay, elevation,
-// pseudo-checkbox, focus indicators, and typography baseline.
 @include mat.core();
 
-// Apply Angular Material M3 theme to the application.
+// Light theme (default)
 html {
   @include mat.theme(
     (
       color: (
         primary: mat.$violet-palette,
         tertiary: mat.$orange-palette,
+        theme-type: light,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: 'Inter',
+        brand-family: 'Inter Tight',
+      ),
       density: 0,
     )
   );
+}
+
+// Dark theme — system preference (suppressed when forced light)
+@media (prefers-color-scheme: dark) {
+  html:not(.theme-light) {
+    @include mat.theme(
+      (
+        color: (
+          primary: mat.$violet-palette,
+          tertiary: mat.$orange-palette,
+          theme-type: dark,
+        ),
+      )
+    );
+  }
+}
+
+// Forced dark theme (overrides system light preference)
+html.theme-dark {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$orange-palette,
+        theme-type: dark,
+      ),
+    )
+  );
+}
+
+html {
+  // Derived color tokens (resolve lazily against --mat-sys-* so dark mode works for free)
+  --color-primary-dark: color-mix(in srgb, var(--mat-sys-primary) 70%, black 30%);
+  --color-primary-subtle: color-mix(
+    in srgb,
+    var(--mat-sys-primary-container) 50%,
+    var(--mat-sys-surface)
+  );
+
+  // Border radii
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  // Shadows
+  --shadow-1: 0 1px 2px rgba(20, 16, 28, 0.06), 0 1px 3px rgba(20, 16, 28, 0.04);
+  --shadow-2: 0 2px 6px rgba(20, 16, 28, 0.06), 0 8px 24px rgba(20, 16, 28, 0.05);
 }
 
 html,
 body {
   height: 100%;
   margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background-color: var(--mat-sys-surface);
+  font-family: 'Inter', sans-serif;
+  background-color: var(--mat-sys-surface-container-low);
   color: var(--mat-sys-on-surface);
 }
 
-// Display and headline text use Plus Jakarta Sans for typographic distinction
-h1,
-h2,
-h3 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-// Toolbar spacer
 .spacer {
   flex: 1 1 auto;
 }
 
-// Max-width centered container — used by all pages
+// Centered max-width container used by all pages
 .page-container {
-  max-width: 720px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 48px 24px 64px;
+  padding: 20px 28px 48px;
   box-sizing: border-box;
   width: 100%;
 }

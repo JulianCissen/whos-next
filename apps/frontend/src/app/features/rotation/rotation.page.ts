@@ -1,131 +1,55 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import type { OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type {
   AddMemberResponseDto,
   MemberDto,
+  OccurrenceDto,
+  OccurrenceWindowDto,
   RotationResponseDto,
   ScheduleDto,
 } from '@whos-next/shared';
 
-import { MembersApiService } from '../../core/api/members.api';
-import { RotationsApiService } from '../../core/api/rotations.api';
+import { MembersApiService } from '../../core/api/members.api.js';
+import { RotationsApiService } from '../../core/api/rotations.api.js';
+import { OccurrencesApiService } from '../../core/api/schedule.api.js';
+import { LanguageService } from '../../core/language.service.js';
+import type { CadenceDescriptor } from '../../core/recent-rotation-store.service.js';
+import { RecentRotationStore } from '../../core/recent-rotation-store.service.js';
+import { PillAppBarComponent } from '../../shared/pill-app-bar/pill-app-bar.component.js';
 
-import { AddMemberFormComponent } from './add-member-form/add-member-form.component';
-import { MemberQueueComponent } from './member-queue/member-queue.component';
-import { OccurrenceViewComponent } from './occurrence-view/occurrence-view.component';
-import { RotationSettingsComponent } from './rotation-settings.component';
+import { AddMemberDialogComponent } from './add-member-form/add-member-dialog.component.js';
+import { AddMemberFormComponent } from './add-member-form/add-member-form.component.js';
+import { DashboardSkeletonComponent } from './dashboard-skeleton/dashboard-skeleton.component.js';
+import { MemberQueueComponent } from './member-queue/member-queue.component.js';
+import { OccurrenceViewComponent } from './occurrence-view/occurrence-view.component.js';
+import type { SettingsDialogData } from './rotation-settings-dialog.component.js';
+import { RotationSettingsDialogComponent } from './rotation-settings-dialog.component.js';
+import { UpNextHeroCardComponent } from './up-next-hero-card/up-next-hero-card.component.js';
 
 @Component({
   selector: 'app-rotation-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
-    MatExpansionModule,
     MatIconModule,
-    MatTooltipModule,
+    MatMenuModule,
+    RouterLink,
     TranslateModule,
+    PillAppBarComponent,
+    DashboardSkeletonComponent,
+    UpNextHeroCardComponent,
     AddMemberFormComponent,
     MemberQueueComponent,
     OccurrenceViewComponent,
-    RotationSettingsComponent,
   ],
-  template: `
-    @if (loading()) {
-      <div class="page-container state-message" aria-live="polite">Loading…</div>
-    } @else if (loadError()) {
-      <div class="page-container state-message" role="alert">
-        {{ 'rotation.load_error' | translate }}
-      </div>
-    } @else if (rotation()) {
-      <div class="page-container">
-        <header class="rotation-header">
-          <p class="rotation-header__label">Rotation</p>
-          <div class="rotation-header__title-row">
-            <h1 class="rotation-header__title">{{ rotation()!.name }}</h1>
-            <button
-              mat-icon-button
-              class="rotation-header__copy-btn"
-              (click)="copyUrl()"
-              [attr.aria-label]="'rotation.copy_link_label' | translate"
-              [matTooltip]="'rotation.copy_link_tooltip' | translate"
-            >
-              <mat-icon>{{ urlCopied() ? 'check' : 'content_copy' }}</mat-icon>
-            </button>
-          </div>
-        </header>
-
-        <section class="schedule-section">
-          @if (rotation()!.schedule) {
-            <app-occurrence-view
-              [slug]="rotation()!.slug"
-              [scheduleVersion]="scheduleVersion()"
-              [activeMemberCount]="members().length"
-              [schedule]="rotation()!.schedule"
-            />
-          } @else {
-            <p class="occurrence-empty-state">
-              {{ 'occurrence.empty_state.no_schedule' | translate }}
-            </p>
-          }
-        </section>
-
-        <mat-card appearance="outlined" class="section-card section-card--queue">
-          <mat-card-header>
-            <div class="queue-header">
-              <div class="queue-header__text">
-                <mat-card-title class="queue-title">{{ 'queue.title' | translate }}</mat-card-title>
-                <mat-card-subtitle class="queue-subtitle">
-                  {{ 'queue.description' | translate }}
-                </mat-card-subtitle>
-              </div>
-              <span class="queue-count">{{ members().length }}</span>
-            </div>
-          </mat-card-header>
-          <mat-card-content>
-            <app-member-queue
-              [members]="members()"
-              [highlightMemberId]="lastAddedMemberId()"
-              (memberRemoved)="onMemberRemoved($event)"
-              (membersReordered)="onMembersReordered($event)"
-            />
-          </mat-card-content>
-        </mat-card>
-
-        <mat-expansion-panel
-          class="add-member-panel"
-          [expanded]="addMemberExpanded()"
-          (opened)="addMemberExpanded.set(true)"
-          (closed)="addMemberExpanded.set(false)"
-        >
-          <mat-expansion-panel-header>
-            <mat-panel-title>{{ 'member.add_form.title' | translate }}</mat-panel-title>
-          </mat-expansion-panel-header>
-          <app-add-member-form [slug]="rotation()!.slug" (memberAdded)="onMemberAdded($event)" />
-        </mat-expansion-panel>
-
-        <app-rotation-settings
-          [slug]="rotation()!.slug"
-          [rotationName]="rotation()!.name"
-          [schedule]="rotation()!.schedule"
-          (rotationRenamed)="onRotationRenamed($event)"
-          (rotationDeleted)="onRotationDeleted()"
-          (scheduleUpdated)="onScheduleUpdated($event)"
-        />
-      </div>
-    }
-  `,
+  templateUrl: './rotation.page.html',
   styleUrl: './rotation.page.scss',
 })
 export class RotationPage implements OnInit {
@@ -133,24 +57,69 @@ export class RotationPage implements OnInit {
   private readonly router = inject(Router);
   private readonly api = inject(RotationsApiService);
   private readonly membersApi = inject(MembersApiService);
+  private readonly occurrencesApi = inject(OccurrencesApiService);
+  private readonly recentStore = inject(RecentRotationStore);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
+  private readonly lang = inject(LanguageService);
 
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly rotation = signal<RotationResponseDto | null>(null);
   readonly members = signal<MemberDto[]>([]);
-  readonly urlCopied = signal(false);
   readonly scheduleVersion = signal(0);
   readonly lastAddedMemberId = signal<string | null>(null);
-  readonly addMemberExpanded = signal(false);
+  readonly nextOccurrence = signal<OccurrenceDto | null>(null);
+  readonly afterNextOccurrence = signal<OccurrenceDto | null>(null);
+  readonly memberNextDates = signal<ReadonlyMap<string, string>>(new Map());
+  readonly futureCount = signal(0);
 
-  protected readonly currentUrl = globalThis.location.href;
-
+  readonly cadenceChip = computed(() => {
+    this.lang.current(); // reactive dependency — re-runs on language change
+    return this.formatCadenceLabel(this.toCadenceDescriptor(this.rotation()?.schedule));
+  });
   copyUrl(): void {
-    void navigator.clipboard.writeText(this.currentUrl).then(() => {
-      this.urlCopied.set(true);
-      setTimeout(() => {
-        this.urlCopied.set(false);
-      }, 2000);
+    void navigator.clipboard.writeText(globalThis.location.href).then(() => {
+      this.snackBar.open(this.translate.instant('rotation.link_copied') as string, undefined, {
+        duration: 2000,
+      });
+    });
+  }
+
+  openAddMember(): void {
+    const r = this.rotation();
+    if (!r) return;
+    const ref = this.dialog.open(AddMemberDialogComponent, {
+      data: { slug: r.slug },
+      width: '400px',
+      maxWidth: '95vw',
+    });
+    ref.componentInstance.memberAdded.subscribe((member: AddMemberResponseDto) => {
+      this.onMemberAdded(member);
+    });
+  }
+
+  openSettings(): void {
+    const r = this.rotation();
+    if (!r) return;
+    const data: SettingsDialogData = {
+      slug: r.slug,
+      rotationName: r.name,
+      schedule: r.schedule ?? null,
+    };
+    const ref = this.dialog.open(RotationSettingsDialogComponent, {
+      data,
+      width: '560px',
+      maxWidth: '95vw',
+    });
+    ref.componentInstance.rotationRenamed.subscribe((u: RotationResponseDto) =>
+      this.onRotationRenamed(u),
+    );
+    ref.componentInstance.scheduleUpdated.subscribe((s: ScheduleDto) => this.onScheduleUpdated(s));
+    ref.componentInstance.rotationDeleted.subscribe(() => {
+      ref.close();
+      this.onRotationDeleted();
     });
   }
 
@@ -160,13 +129,50 @@ export class RotationPage implements OnInit {
       next: (rotation) => {
         this.rotation.set(rotation);
         this.members.set(rotation.members ?? []);
-        this.addMemberExpanded.set((rotation.members ?? []).length < 2);
         this.loading.set(false);
+        this.recentStore.add({
+          slug: rotation.slug,
+          name: rotation.name,
+          cadence: this.toCadenceDescriptor(rotation.schedule),
+          nextMember: '',
+          nextDate: '',
+        });
       },
       error: () => {
         this.loadError.set(true);
         this.loading.set(false);
       },
+    });
+  }
+
+  protected onWindowLoaded(w: OccurrenceWindowDto): void {
+    this.nextOccurrence.set(w.next);
+    this.afterNextOccurrence.set(w.future[0] ?? null);
+    const dates = new Map<string, string>();
+    for (const occ of [w.next, ...w.future]) {
+      if (occ?.memberId && !occ.cancelledMemberId && !dates.has(occ.memberId)) {
+        dates.set(occ.memberId, occ.date);
+      }
+    }
+    this.memberNextDates.set(dates);
+    this.futureCount.set((w.next ? 1 : 0) + w.future.length);
+    const r = this.rotation();
+    if (r && w.next) {
+      this.recentStore.add({
+        slug: r.slug,
+        name: r.name,
+        cadence: this.toCadenceDescriptor(r.schedule),
+        nextMember: w.next.memberName ?? '',
+        nextDate: w.next.date,
+      });
+    }
+  }
+
+  protected onSkipNext(date: string): void {
+    const slug = this.rotation()?.slug;
+    if (!slug || !date) return;
+    this.occurrencesApi.cancelOccurrence(slug, date).subscribe({
+      next: () => this.scheduleVersion.update((v) => v + 1),
     });
   }
 
@@ -220,5 +226,49 @@ export class RotationPage implements OnInit {
     const current = this.rotation();
     if (current) this.rotation.set({ ...current, schedule });
     this.scheduleVersion.update((v) => v + 1);
+  }
+
+  private toCadenceDescriptor(schedule: ScheduleDto | null | undefined): CadenceDescriptor | null {
+    if (!schedule) return null;
+    if (schedule.type === 'custom_date_list') return { scheduleType: 'custom_date_list' };
+    const rule = schedule.recurrenceRule;
+    if (!rule) return null;
+    return {
+      scheduleType: 'recurrence_rule',
+      ruleType: rule.type,
+      dayOfWeek: rule.dayOfWeek,
+      intervalN: rule.intervalN,
+    };
+  }
+
+  private formatCadenceLabel(desc: CadenceDescriptor | null): string {
+    if (!desc) return '';
+    if (desc.scheduleType === 'custom_date_list') {
+      return this.translate.instant('schedule.type.custom_date_list') as string;
+    }
+    const { ruleType, dayOfWeek, intervalN } = desc;
+    let label = '';
+    switch (ruleType) {
+      case 'weekly': {
+        label = this.translate.instant('schedule.rrule.weekly') as string;
+        break;
+      }
+      case 'every_n_weeks': {
+        label = this.translate.instant('landing.cadence_chip.every_n_weeks', {
+          n: intervalN ?? 2,
+        }) as string;
+        break;
+      }
+      case 'monthly': {
+        label = this.translate.instant('schedule.rrule.monthly') as string;
+        // No default
+        break;
+      }
+    }
+    if (dayOfWeek) {
+      const day = this.translate.instant(`landing.cadence_chip.day_short.${dayOfWeek}`) as string;
+      label += ` · ${day}`;
+    }
+    return label;
   }
 }

@@ -4,23 +4,38 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
+  computed,
   effect,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { MemberDto } from '@whos-next/shared';
 
+import { LanguageService } from '../../../core/language.service.js';
+
+function nameToColor(name: string): string {
+  let hash = 0;
+  // eslint-disable-next-line unicorn/prefer-code-point
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  const hue = (hash % 12) * 30;
+  return `hsl(${hue}, 65%, 42%)`;
+}
+
+function formatDate(isoDate: string, locale: string): string {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+}
+
 @Component({
   selector: 'app-member-queue',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CdkDropList, CdkDrag, MatButtonModule, MatIconModule, TranslateModule],
+  imports: [CdkDropList, CdkDrag, MatIconModule, TranslateModule],
   template: `
     @if (localMembers().length === 0) {
       <p class="empty-state">{{ 'member.empty_state' | translate }}</p>
@@ -40,15 +55,17 @@ import type { MemberDto } from '@whos-next/shared';
             [class.queue-item--highlight]="member.id === highlightMemberId"
           >
             <mat-icon cdkDragHandle class="drag-handle" aria-hidden="true">drag_indicator</mat-icon>
-            <span
-              class="queue-item__position"
-              [class.queue-item__position--top]="member.position <= 3"
-              aria-hidden="true"
-              >{{ member.position }}</span
-            >
-            <span class="queue-item__name">{{ member.name }}</span>
+            <div class="queue-item__avatar" [style.background]="avatarColor(member.name)">
+              {{ member.name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="queue-item__info">
+              <span class="queue-item__name">{{ member.name }}</span>
+              @if (memberNextDates().get(member.id); as date) {
+                <span class="queue-item__date">{{ formatDate(date, currentLang()) }}</span>
+              }
+            </div>
             <button
-              mat-icon-button
+              class="queue-item__remove"
               type="button"
               [attr.aria-label]="
                 translate.instant('member.remove_button_label', { name: member.name })
@@ -66,8 +83,12 @@ import type { MemberDto } from '@whos-next/shared';
 })
 export class MemberQueueComponent {
   protected readonly translate = inject(TranslateService);
+  private readonly lang = inject(LanguageService);
+  protected readonly formatDate = formatDate;
+  protected readonly currentLang = computed(() => this.lang.current());
 
   readonly members = input.required<MemberDto[]>();
+  readonly memberNextDates = input<ReadonlyMap<string, string>>(new Map());
   readonly memberRemoved = output<string>();
   readonly membersReordered = output<string[]>();
 
@@ -79,6 +100,10 @@ export class MemberQueueComponent {
     effect(() => {
       this.localMembers.set(this.members());
     });
+  }
+
+  protected avatarColor(name: string): string {
+    return nameToColor(name);
   }
 
   onDrop(event: CdkDragDrop<MemberDto[]>): void {

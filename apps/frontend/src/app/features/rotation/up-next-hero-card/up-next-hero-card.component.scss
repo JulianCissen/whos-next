@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+
+.hero-card {
+  background: var(--mat-sys-primary);
+  border-radius: var(--radius-xl);
+  padding: 24px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hero-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-card__eyebrow {
+  margin: 0;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-primary);
+}
+
+.hero-card__name {
+  margin: 2px 0 0;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--mat-sys-on-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-card__subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--mat-sys-on-primary);
+}
+
+.hero-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.hero-card__skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: color-mix(in srgb, var(--mat-sys-on-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-on-primary) 30%, transparent);
+  border-radius: 999px;
+  padding: 8px 18px 8px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mat-sys-on-primary);
+  cursor: pointer;
+  transition: background 130ms ease, border-color 130ms ease;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--mat-sys-on-primary) 22%, transparent);
+    border-color: color-mix(in srgb, var(--mat-sys-on-primary) 50%, transparent);
+  }
+}

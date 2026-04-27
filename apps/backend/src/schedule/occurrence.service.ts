@@ -102,7 +102,7 @@ function toOccurrenceDto(
 export class OccurrenceService {
   constructor(private readonly orm: MikroORM) {}
 
-  async getWindow(slug: string): Promise<OccurrenceWindowDto> {
+  async getWindow(slug: string, pastCount = 2, futureCount = 2): Promise<OccurrenceWindowDto> {
     const em = this.orm.em.fork();
     const { rotation, schedule } = await requireRotationAndSchedule(em, slug);
     if (!schedule) return { past: [], next: null, future: [] };
@@ -113,7 +113,7 @@ export class OccurrenceService {
     const pastAssignments = await em.find(
       OccurrenceAssignment,
       { rotation, occurrenceDate: { $lt: todayStr } as unknown as string },
-      { orderBy: { occurrenceDate: 'DESC' }, limit: 2, populate: ['member'] },
+      { orderBy: { occurrenceDate: 'DESC' }, limit: pastCount, populate: ['member'] },
     );
     const past: OccurrenceDto[] = pastAssignments
       .toReversed()
@@ -146,7 +146,7 @@ export class OccurrenceService {
     if (next && nextDate) {
       let futureDates: Date[];
       if (schedule.type === 'recurrence_rule') {
-        futureDates = getFutureRecurrenceDatesAfter(schedule, nextDate, 2);
+        futureDates = getFutureRecurrenceDatesAfter(schedule, nextDate, futureCount);
       } else {
         const scheduleDates = await em.find(
           ScheduleDate,
@@ -157,7 +157,7 @@ export class OccurrenceService {
         futureDates = scheduleDates
           .map((r) => new Date(r.date))
           .filter((d) => toIsoDate(d) > nextDateStr)
-          .slice(0, 2);
+          .slice(0, futureCount);
       }
       if (futureDates.length > 0) {
         const futureDateStrs = futureDates.map((d) => toIsoDate(d));

@@ -27,7 +27,10 @@
       "Bash(pnpm --filter backend run test)",
       "Bash(pnpm --filter backend run test -- --reporter=verbose src/schedule)",
       "Bash(npx vitest *)",
-      "WebFetch(domain:mikro-orm.io)"
+      "WebFetch(domain:mikro-orm.io)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(npx eslint *)",
+      "mcp__chrome-devtools-mcp__emulate"
     ]
   },
   "enableAllProjectMcpServers": true,

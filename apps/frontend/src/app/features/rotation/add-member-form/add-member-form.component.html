@@ -1,37 +1,44 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-  <mat-form-field appearance="outline" class="name-field">
-    <mat-label>{{ 'member.add_form.name_label' | translate }}</mat-label>
+  <div class="ctrl-wrap">
+    <span class="ctrl-label">{{ 'member.add_form.name_label' | translate }}</span>
     <input
       #nameInput
-      matInput
+      class="ctrl-input"
+      type="text"
       formControlName="name"
       [placeholder]="'member.add_form.name_placeholder' | translate"
       autocomplete="off"
     />
-    @if ((form.controls.name.hasError('required') || form.controls.name.hasError('whitespace')) && form.controls.name.dirty) {
-      <mat-error>{{ 'member.add_form.name_required' | translate }}</mat-error>
+    @if (
+      (form.controls.name.hasError('required') || form.controls.name.hasError('whitespace')) &&
+      form.controls.name.dirty
+    ) {
+      <span class="ctrl-error">{{ 'member.add_form.name_required' | translate }}</span>
     } @else if (form.controls.name.hasError('maxlength')) {
-      <mat-error>{{ 'member.add_form.name_max_length' | translate }}</mat-error>
+      <span class="ctrl-error">{{ 'member.add_form.name_max_length' | translate }}</span>
     }
-  </mat-form-field>
+  </div>
 
-  <div class="form-actions">
-    <mat-button-toggle-group
-      formControlName="placement"
-      hideSingleSelectionIndicator
-      aria-label="{{ 'member.add_form.placement_label' | translate }}"
-    >
-      <mat-button-toggle value="front">
+  <div class="placement-row">
+    <span class="placement-label">{{ 'member.add_form.placement_label' | translate }}</span>
+    <div class="placement-toggle" role="group">
+      <button
+        type="button"
+        class="placement-btn"
+        [class.placement-btn--on]="form.controls.placement.value === 'front'"
+        (click)="form.controls.placement.setValue('front')"
+      >
         {{ 'member.add_form.placement_front' | translate }}
-      </mat-button-toggle>
-      <mat-button-toggle value="back">
+      </button>
+      <button
+        type="button"
+        class="placement-btn"
+        [class.placement-btn--on]="form.controls.placement.value === 'back'"
+        (click)="form.controls.placement.setValue('back')"
+      >
         {{ 'member.add_form.placement_back' | translate }}
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-
-    <button mat-flat-button type="submit" [disabled]="submitting() || form.invalid">
-      {{ 'member.add_form.submit_button' | translate }}
-    </button>
+      </button>
+    </div>
   </div>
 
   @if (capacityError()) {
@@ -39,4 +46,19 @@
   } @else if (genericError()) {
     <p class="form-error" role="alert">{{ 'member.add_form.generic_error' | translate }}</p>
   }
+
+  <div class="submit-row">
+    <button class="submit-btn" type="submit" [disabled]="submitting() || form.invalid">
+      {{ 'member.add_form.submit_button' | translate }}
+    </button>
+    <label class="add-another-label">
+      <input
+        class="add-another-check"
+        type="checkbox"
+        [checked]="addAnother()"
+        (change)="toggleAddAnother()"
+      />
+      {{ 'member.add_form.add_another' | translate }}
+    </label>
+  </div>
 </form>

@@ -1,6 +1,6 @@
 # whos-next Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-24
+Auto-generated from all feature plans. Last updated: 2026-04-26
 
 ## Active Technologies
 - TypeScript 5.9.3 across all packages. (20260421-173419-member-queue)
@@ -49,6 +49,7 @@ Before signing off on any change, verify:
 - See `.github/instructions/` for scoped AI rules
 
 ## Recent Changes
+- 20260425-120000-v3-redesign: Angular Material M3 dark theme via `prefers-color-scheme`; Inter/Inter Tight/JetBrains Mono fonts; browser localStorage `RecentRotationStore`; `PillAppBarComponent` content-projection shell; occurrence window endpoint gains optional `?past=` and `?future=` query params; no new DB migrations; no new npm packages.
 - 20260423-211423-skip-behavior: Added TypeScript 5.9.3 + NestJS 11, MikroORM 7, Angular 21, Angular Material (M3), @ngx-translate/core
 - 20260422-170340-schedule-occurrence-view: Added TypeScript 5.9.3 — Angular 21 (frontend), NestJS 11 (backend), TypeScript-only (shared) + Angular Material M3, @ngx-translate/core (frontend); NestJS 11, MikroORM 7 (backend); no new external packages
 

@@ -25,8 +25,18 @@ export class ScheduleController {
   ) {}
 
   @Get('occurrences')
-  async getOccurrenceWindow(@Param('slug') slug: string): Promise<OccurrenceWindowDto> {
-    return this.occurrenceService.getWindow(slug);
+  async getOccurrenceWindow(
+    @Param('slug') slug: string,
+    @Query('past') pastStr?: string,
+    @Query('future') futureStr?: string,
+  ): Promise<OccurrenceWindowDto> {
+    const pastCount =
+      pastStr === undefined ? undefined : Math.min(52, Math.max(0, Number.parseInt(pastStr, 10)));
+    const futureCount =
+      futureStr === undefined
+        ? undefined
+        : Math.min(52, Math.max(0, Number.parseInt(futureStr, 10)));
+    return this.occurrenceService.getWindow(slug, pastCount, futureCount);
   }
 
   @Get('occurrences/browse')

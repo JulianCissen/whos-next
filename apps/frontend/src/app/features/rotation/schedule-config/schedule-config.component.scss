@@ -6,20 +6,10 @@
 
 .schedule-config__title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Inter Tight', sans-serif;
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--mat-sys-on-surface);
-}
-
-.schedule-config__type-group {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.schedule-config__field {
-  width: 100%;
 }
 
 .schedule-config__error {
@@ -31,4 +21,119 @@
 .schedule-config__switch-btn {
   align-self: flex-start;
   margin-top: 8px;
+}
+
+// ── Type toggle ───────────────────────────────────────────────
+.sc__toggle {
+  display: inline-flex;
+  background: var(--mat-sys-surface-container);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.sc__btn {
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 0 18px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  white-space: nowrap;
+
+  &--on {
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+
+  &:not(.sc__btn--on):hover {
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+// ── Floating-label controls ───────────────────────────────────
+.sc__ctrl-wrap {
+  position: relative;
+
+  &:has(.sc__select)::after {
+    content: '';
+    position: absolute;
+    right: 18px;
+    top: 39px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--mat-sys-on-surface-variant);
+    pointer-events: none;
+  }
+}
+
+.sc__ctrl-label {
+  position: absolute;
+  top: 9px;
+  left: 18px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant);
+  pointer-events: none;
+  z-index: 1;
+  line-height: 1;
+}
+
+.sc__select,
+.sc__input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--mat-sys-surface-container-low);
+  border: 1.5px solid var(--mat-sys-outline-variant);
+  border-radius: 16px;
+  padding: 26px 18px 11px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+  appearance: none;
+  transition: border-color 160ms ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--mat-sys-primary);
+  }
+}
+
+.sc__select {
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+// ── Checkbox ─────────────────────────────────────────────────
+.sc__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--mat-sys-primary);
+  }
 }

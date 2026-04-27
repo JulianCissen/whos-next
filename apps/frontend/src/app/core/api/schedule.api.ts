@@ -42,8 +42,17 @@ export class ScheduleApiService {
 export class OccurrencesApiService {
   private readonly http = inject(HttpClient);
 
-  getWindow(slug: string): Observable<OccurrenceWindowDto> {
-    return this.http.get<OccurrenceWindowDto>(`/api/rotations/${slug}/occurrences`);
+  getWindow(
+    slug: string,
+    params?: { past?: number; future?: number },
+  ): Observable<OccurrenceWindowDto> {
+    const query = new URLSearchParams();
+    if (params?.past !== undefined) query.set('past', String(params.past));
+    if (params?.future !== undefined) query.set('future', String(params.future));
+    const qs = query.toString();
+    return this.http.get<OccurrenceWindowDto>(
+      `/api/rotations/${slug}/occurrences${qs ? `?${qs}` : ''}`,
+    );
   }
 
   browse(

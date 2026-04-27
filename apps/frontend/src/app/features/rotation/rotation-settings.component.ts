@@ -4,10 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -28,80 +25,61 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
     ReactiveFormsModule,
     MatButtonModule,
     MatDividerModule,
-    MatExpansionModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
     TranslateModule,
     ScheduleConfigComponent,
   ],
   template: `
-    <mat-expansion-panel class="settings-panel">
-      <mat-expansion-panel-header>
-        <mat-panel-title>{{ 'rotation.settings_title' | translate }}</mat-panel-title>
-      </mat-expansion-panel-header>
+    <div class="settings-section">
+      <app-schedule-config
+        [slug]="slug()"
+        [schedule]="schedule()"
+        (scheduleUpdated)="scheduleUpdated.emit($event)"
+      />
+    </div>
 
-      <div class="settings-section">
-        <app-schedule-config
-          [slug]="slug()"
-          [schedule]="schedule()"
-          (scheduleUpdated)="scheduleUpdated.emit($event)"
-        />
-      </div>
+    <mat-divider class="settings-divider" />
 
-      <mat-divider class="settings-divider" />
-
-      <div class="settings-section">
-        <h3 class="settings-section__title">{{ 'rotation.rename_label' | translate }}</h3>
-        <form [formGroup]="renameForm" (ngSubmit)="onRename()" class="rename-form">
-          <mat-form-field appearance="outline" class="rename-form__field">
-            <mat-label>{{ 'rotation.rename_label' | translate }}</mat-label>
-            <input matInput formControlName="name" />
-            @if (renameForm.controls.name.hasError('required')) {
-              <mat-error>{{ 'landing.name_required' | translate }}</mat-error>
-            } @else if (renameForm.controls.name.hasError('maxlength')) {
-              <mat-error>{{ 'landing.name_max_length' | translate }}</mat-error>
-            }
-          </mat-form-field>
-          @if (renameError()) {
-            <p class="rename-form__error" role="alert">
-              {{ 'rotation.rename_error' | translate }}
-            </p>
+    <div class="settings-section">
+      <h3 class="settings-section__title">{{ 'rotation.rename_label' | translate }}</h3>
+      <form [formGroup]="renameForm" (ngSubmit)="onRename()" class="rename-form">
+        <div class="ctrl-wrap">
+          <span class="ctrl-label">{{ 'rotation.rename_label' | translate }}</span>
+          <input class="ctrl-input" type="text" formControlName="name" />
+          @if (renameForm.controls.name.hasError('required')) {
+            <span class="ctrl-error">{{ 'landing.name_required' | translate }}</span>
+          } @else if (renameForm.controls.name.hasError('maxlength')) {
+            <span class="ctrl-error">{{ 'landing.name_max_length' | translate }}</span>
           }
-          <button mat-stroked-button type="submit" [disabled]="renaming()">
-            {{ 'rotation.rename_button' | translate }}
-          </button>
-        </form>
-      </div>
-
-      <mat-divider class="settings-divider" />
-
-      <div class="settings-section settings-section--danger">
-        <div class="danger-zone">
-          <p class="danger-zone__description">
-            {{ 'rotation.delete_warning' | translate }}
-          </p>
-          <button mat-stroked-button class="delete-btn" (click)="openDeleteDialog()">
-            <mat-icon>delete_forever</mat-icon>
-            {{ 'rotation.delete_button' | translate }}
-          </button>
         </div>
+        @if (renameError()) {
+          <p class="rename-form__error" role="alert">{{ 'rotation.rename_error' | translate }}</p>
+        }
+        <button mat-stroked-button type="submit" [disabled]="renaming()">
+          {{ 'rotation.rename_button' | translate }}
+        </button>
+      </form>
+    </div>
+
+    <mat-divider class="settings-divider" />
+
+    <div class="settings-section settings-section--danger">
+      <div class="danger-zone">
+        <p class="danger-zone__description">{{ 'rotation.delete_warning' | translate }}</p>
+        <button mat-stroked-button class="delete-btn" (click)="openDeleteDialog()">
+          <mat-icon>delete_forever</mat-icon>
+          {{ 'rotation.delete_button' | translate }}
+        </button>
       </div>
-    </mat-expansion-panel>
+    </div>
   `,
   styles: [
     `
-      .settings-panel {
-        background: transparent;
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 12px !important;
-        box-shadow: none !important;
-      }
       .settings-section {
         padding: 20px 0;
         &__title {
           margin: 0 0 14px;
-          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-family: 'Inter Tight', sans-serif;
           font-size: 0.875rem;
           font-weight: 700;
           color: var(--mat-sys-on-surface);
@@ -115,8 +93,47 @@ import { ScheduleConfigComponent } from './schedule-config/schedule-config.compo
         flex-direction: column;
         gap: 16px;
       }
-      .rename-form__field {
+      .ctrl-wrap {
+        position: relative;
+      }
+      .ctrl-label {
+        position: absolute;
+        top: 9px;
+        left: 18px;
+        font-family: 'Inter Tight', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--mat-sys-on-surface-variant);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .ctrl-input {
+        display: block;
         width: 100%;
+        box-sizing: border-box;
+        background: var(--mat-sys-surface-container-low);
+        border: 1.5px solid var(--mat-sys-outline-variant);
+        border-radius: 16px;
+        padding: 26px 18px 11px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--mat-sys-on-surface);
+        appearance: none;
+        transition: border-color 160ms ease;
+        &:focus {
+          outline: none;
+          border-color: var(--mat-sys-primary);
+        }
+      }
+      .ctrl-error {
+        display: block;
+        margin-top: 6px;
+        padding-left: 18px;
+        font-size: 12px;
+        color: var(--mat-sys-error);
       }
       .rename-form__error {
         margin: 0;
@@ -205,9 +222,7 @@ export class RotationSettingsComponent implements OnInit {
 
   protected openDeleteDialog(): void {
     const rotationName = this.rotationName();
-    const ref = this.dialog.open(DeleteRotationDialogComponent, {
-      data: { rotationName },
-    });
+    const ref = this.dialog.open(DeleteRotationDialogComponent, { data: { rotationName } });
     ref.afterClosed().subscribe((confirmed: boolean) => {
       if (!confirmed) return;
       this.api.delete(this.slug()).subscribe({

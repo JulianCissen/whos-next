@@ -1,103 +1,97 @@
 .timeline-loading {
   display: flex;
   justify-content: center;
-  padding: 32px;
+  padding: 24px;
 }
+
 .timeline-error {
   color: var(--mat-sys-error);
-  text-align: center;
   margin: 0;
 }
-.hero {
+
+.timeline {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
+  flex-direction: column;
 }
-.hero__avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.375rem;
-  font-weight: 700;
+
+// Row uses stretch so rail and content share the same total height.
+// Vertical spacing lives on .timeline__content (padding), not here,
+// so the rail fills the full height including that padding — adjacent
+// rails butt up with no gap and the line is seamless.
+.timeline__row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+// ── Left rail ─────────────────────────────────────────────────
+.timeline__rail {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+
+  // Continuous connecting line via pseudo-element.
+  // Covers full rail height so adjacent rows connect without gaps.
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--mat-sys-outline-variant);
+  }
 }
-.hero__info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
+
+// First row: line fades in from the top (implies history above)
+.timeline__row:first-child .timeline__rail::before {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--mat-sys-outline-variant) 50%
+  );
 }
-.hero__label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--mat-sys-primary);
+
+// Last row: line fades out to the bottom (implies more coming)
+.timeline__row:last-child .timeline__rail::before {
+  background: linear-gradient(
+    to bottom,
+    var(--mat-sys-outline-variant) 50%,
+    transparent 100%
+  );
 }
-.hero__name {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.375rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--mat-sys-on-surface);
-  line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.hero__context {
-  font-size: 0.8125rem;
-  color: var(--mat-sys-on-surface-variant);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.timeline {
-  display: flex;
-  align-items: stretch;
-  position: relative;
-  overflow-x: auto;
-}
-.timeline__track {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 5px;
-  height: 2px;
-  background: var(--mat-sys-outline-variant);
-  z-index: 0;
-}
-.timeline__node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-width: 120px;
-  padding: 0 6px;
-  z-index: 1;
-}
-.timeline__node--current {
-  flex: 1.5;
-  min-width: 160px;
-}
+
 .timeline__dot {
+  position: relative;
+  z-index: 1;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--mat-sys-outline-variant);
-  margin-top: auto;
+  border: 2px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
   flex-shrink: 0;
-  z-index: 1;
+
+  &--current {
+    width: 14px;
+    height: 14px;
+    background: var(--mat-sys-primary);
+    border-color: var(--mat-sys-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+  }
 }
-.timeline__dot--current {
-  width: 14px;
-  height: 14px;
-  background: var(--mat-sys-primary);
+
+// ── Row content ───────────────────────────────────────────────
+// Padding here (not on the row) so the rail stretches to include it,
+// keeping the line continuous. ~26px gap between rows ≈ 80 % avatar.
+.timeline__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 13px 0;
 }
