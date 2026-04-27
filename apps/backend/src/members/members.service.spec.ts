@@ -195,6 +195,14 @@ describe('MembersService.remove()', () => {
 
     await expect(service.remove('aBcDeFgH', 'any-id')).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('throws NotFoundException for malformed slug without DB hit', async () => {
+    const orm = makeOrmMock();
+    const service = new MembersService(orm as never);
+
+    await expect(service.remove('BAD', 'any-id')).rejects.toBeInstanceOf(NotFoundException);
+    expect(orm._em.findOne).not.toHaveBeenCalled();
+  });
 });
 
 describe('MembersService.reorder()', () => {
@@ -263,5 +271,15 @@ describe('MembersService.reorder()', () => {
     await expect(
       service.reorder('aBcDeFgH', { memberIds: ['id-alice', 'id-bob'] }),
     ).resolves.toBeDefined();
+  });
+
+  it('throws NotFoundException for malformed slug without DB hit', async () => {
+    const orm = makeOrmMock();
+    const service = new MembersService(orm as never);
+
+    await expect(service.reorder('BAD', { memberIds: ['id-alice'] })).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(orm._em.findOne).not.toHaveBeenCalled();
   });
 });
