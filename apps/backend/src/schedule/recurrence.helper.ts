@@ -17,19 +17,30 @@ function toRuleDto(schedule: Schedule) {
   } as const;
 }
 
+function isConfiguredRecurrenceSchedule(schedule: Schedule): boolean {
+  return (
+    schedule.type === 'recurrence_rule' &&
+    schedule.startDate !== null &&
+    schedule.rruleType !== null
+  );
+}
+
+function recurrenceStartDate(schedule: Schedule): Date {
+  return new Date(schedule.startDate!);
+}
+
 /**
  * Return all recurrence dates for a schedule that fall strictly before `before`.
  * Used by the settlement pass to compute elapsed dates.
  */
 export function getElapsedRecurrenceDates(schedule: Schedule, before: Date): Date[] {
-  if (
-    schedule.type !== 'recurrence_rule' ||
-    schedule.startDate === null ||
-    schedule.rruleType === null
-  )
-    return [];
-  const startDate = new Date(schedule.startDate);
-  const all = computeRecurrenceDates(toRuleDto(schedule), startDate, new Date(0), MAX_SETTLE_LIMIT);
+  if (!isConfiguredRecurrenceSchedule(schedule)) return [];
+  const all = computeRecurrenceDates(
+    toRuleDto(schedule),
+    recurrenceStartDate(schedule),
+    new Date(0),
+    MAX_SETTLE_LIMIT,
+  );
   return all.filter((d) => d < before);
 }
 
@@ -42,13 +53,12 @@ export function getFutureRecurrenceDatesAfter(
   after: Date,
   limit: number,
 ): Date[] {
-  if (
-    schedule.type !== 'recurrence_rule' ||
-    schedule.startDate === null ||
-    schedule.rruleType === null
-  )
-    return [];
-  const startDate = new Date(schedule.startDate);
+  if (!isConfiguredRecurrenceSchedule(schedule)) return [];
   const afterNext = new Date(after.getFullYear(), after.getMonth(), after.getDate() + 1);
-  return computeRecurrenceDates(toRuleDto(schedule), startDate, afterNext, limit);
+  return computeRecurrenceDates(
+    toRuleDto(schedule),
+    recurrenceStartDate(schedule),
+    afterNext,
+    limit,
+  );
 }

@@ -38,7 +38,9 @@ export function deriveFutureMember(
   if (queue.length === 0) return null;
   let effectiveOffset = 0;
   for (const d of allFutureDatesFromToday) {
-    if (d === targetDate) return queue[(nextIndex + effectiveOffset) % queue.length] ?? null;
+    if (d === targetDate) {
+      return queue[(nextIndex + effectiveOffset) % queue.length] ?? null;
+    }
     if (!transparentDates.has(d)) effectiveOffset++;
   }
   return null;
@@ -59,14 +61,14 @@ export function computeRetroactiveAssignments(
   startIndex: number,
 ): RetroactiveAssignment[] {
   const result: RetroactiveAssignment[] = [];
-  let idx = startIndex;
+  let nextIndex = startIndex;
   for (const date of unsettledDates) {
     result.push({
       date,
-      member: queue.length > 0 ? (queue[idx % queue.length] ?? null) : null,
+      member: queue.length > 0 ? (queue[nextIndex % queue.length] ?? null) : null,
     });
     if (queue.length > 0) {
-      idx = (idx + 1) % queue.length;
+      nextIndex = (nextIndex + 1) % queue.length;
     }
   }
   return result;

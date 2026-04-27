@@ -1,25 +1,23 @@
 import { MikroORM } from '@mikro-orm/core';
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 
 import type { CancelOccurrenceResponseDto, UncancelOccurrenceResponseDto } from '@whos-next/shared';
-import { SLUG_REGEX } from '@whos-next/shared';
 
 import { Member } from '../members/member.entity.js';
 import { OccurrenceAssignment } from '../members/occurrence-assignment.entity.js';
-import { Rotation } from '../rotations/rotation.entity.js';
 
 import { toIsoDate, localToday, localYesterday, deriveFutureMember } from './occurrence.helper.js';
 import { getElapsedRecurrenceDates, getFutureRecurrenceDatesAfter } from './recurrence.helper.js';
 import { ScheduleDate } from './schedule-date.entity.js';
+import {
+  assertIsoDateOrBadRequest,
+  getActiveQueue,
+  getRotationOrThrow,
+  throwOccurrenceNotInSchedule,
+} from './schedule-domain.util.js';
 import { Schedule } from './schedule.entity.js';
 import { settleRotation } from './settle.helper.js';
 
-const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_FUTURE_LIMIT = 10_000;
 
 @Injectable()
@@ -27,49 +25,24 @@ export class CancelService {
   constructor(private readonly orm: MikroORM) {}
 
   async cancel(slug: string, date: string): Promise<CancelOccurrenceResponseDto> {
-    if (!ISO_DATE_REGEX.test(date)) {
-      throw new BadRequestException({
-        statusCode: 400,
-        error: 'INVALID_DATE',
-        message: 'Date must be YYYY-MM-DD',
-      });
-    }
+    assertIsoDateOrBadRequest(date, {
+      statusCode: 400,
+      error: 'INVALID_DATE',
+      message: 'Date must be YYYY-MM-DD',
+    });
 
     const em = this.orm.em.fork();
-
-    if (!SLUG_REGEX.test(slug)) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
-    const rotation = await em.findOne(Rotation, { slug });
-    if (!rotation) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
+    const rotation = await getRotationOrThrow(em, slug);
     const schedule = await em.findOne(Schedule, { rotation });
     if (!schedule) {
-      throw new BadRequestException({
-        statusCode: 400,
-        error: 'OCCURRENCE_NOT_IN_SCHEDULE',
-        message: 'This date is not a scheduled occurrence for this rotation',
-      });
+      throwOccurrenceNotInSchedule();
     }
 
     await settleRotation(rotation, schedule, em);
 
     const inSchedule = await this.isDateInSchedule(date, schedule, em);
     if (!inSchedule) {
-      throw new BadRequestException({
-        statusCode: 400,
-        error: 'OCCURRENCE_NOT_IN_SCHEDULE',
-        message: 'This date is not a scheduled occurrence for this rotation',
-      });
+      throwOccurrenceNotInSchedule();
     }
 
     const existingAssignment = await em.findOne(
@@ -86,11 +59,7 @@ export class CancelService {
       });
     }
 
-    const queue = await em.find(
-      Member,
-      { rotation, removedAt: null },
-      { orderBy: { position: 'ASC' } },
-    );
+    const queue = await getActiveQueue(em, rotation);
 
     let wouldHaveBeen: Member;
     if (existingAssignment) {
@@ -137,29 +106,13 @@ export class CancelService {
   }
 
   async uncancel(slug: string, date: string): Promise<UncancelOccurrenceResponseDto> {
-    if (!ISO_DATE_REGEX.test(date)) {
-      throw new BadRequestException({
-        statusCode: 400,
-        error: 'INVALID_DATE',
-        message: 'Date must be YYYY-MM-DD',
-      });
-    }
+    assertIsoDateOrBadRequest(date, {
+      statusCode: 400,
+      error: 'INVALID_DATE',
+      message: 'Date must be YYYY-MM-DD',
+    });
     const em = this.orm.em.fork();
-    if (!SLUG_REGEX.test(slug)) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
-    const rotation = await em.findOne(Rotation, { slug });
-    if (!rotation) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
+    const rotation = await getRotationOrThrow(em, slug);
     const assignment = await em.findOne(
       OccurrenceAssignment,
       { rotation, occurrenceDate: date },

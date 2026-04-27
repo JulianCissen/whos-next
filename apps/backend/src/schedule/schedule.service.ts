@@ -1,4 +1,4 @@
-import { EntityManager, MikroORM, UniqueConstraintViolationException } from '@mikro-orm/core';
+import { MikroORM, UniqueConstraintViolationException } from '@mikro-orm/core';
 import {
   ConflictException,
   Injectable,
@@ -14,15 +14,16 @@ import type {
   ScheduleDto,
   SwitchScheduleTypeRequestDto,
 } from '@whos-next/shared';
-import { SLUG_REGEX } from '@whos-next/shared';
-
-import { Rotation } from '../rotations/rotation.entity.js';
 
 import { ScheduleDate } from './schedule-date.entity.js';
+import {
+  assertIsoDateOrUnprocessable,
+  getRotationOrThrow,
+  getScheduleOrThrow,
+} from './schedule-domain.util.js';
 import { Schedule } from './schedule.entity.js';
 
 const MAX_CUSTOM_DATES = 500;
-const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export function toScheduleDto(schedule: Schedule, dates?: ScheduleDate[]): ScheduleDto {
   if (schedule.type === 'custom_date_list') {
@@ -50,37 +51,6 @@ function todayIso(): string {
   const m = String(now.getMonth() + 1).padStart(2, '0');
   const d = String(now.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
-}
-
-async function requireRotation(em: EntityManager, slug: string): Promise<Rotation> {
-  if (!SLUG_REGEX.test(slug)) {
-    throw new NotFoundException({
-      statusCode: 404,
-      error: 'ROTATION_NOT_FOUND',
-      message: 'Rotation not found',
-    });
-  }
-  const rotation = await em.findOne(Rotation, { slug });
-  if (!rotation) {
-    throw new NotFoundException({
-      statusCode: 404,
-      error: 'ROTATION_NOT_FOUND',
-      message: 'Rotation not found',
-    });
-  }
-  return rotation;
-}
-
-async function requireSchedule(em: EntityManager, rotation: Rotation): Promise<Schedule> {
-  const schedule = await em.findOne(Schedule, { rotation });
-  if (!schedule) {
-    throw new NotFoundException({
-      statusCode: 404,
-      error: 'SCHEDULE_NOT_FOUND',
-      message: 'Schedule not found',
-    });
-  }
-  return schedule;
 }
 
 function validateRule(rule: RecurrenceRuleDto): void {
@@ -130,7 +100,7 @@ export class ScheduleService {
   ): Promise<ScheduleDto> {
     validateRule(dto.rule);
     const em = this.orm.em.fork();
-    const rotation = await requireRotation(em, slug);
+    const rotation = await getRotationOrThrow(em, slug);
     let schedule = await em.findOne(Schedule, { rotation });
     if (!schedule) {
       schedule = new Schedule();
@@ -155,16 +125,14 @@ export class ScheduleService {
   }
 
   async addDate(slug: string, dto: AddCustomDateRequestDto): Promise<CustomDateDto> {
-    if (!ISO_DATE_REGEX.test(dto.date)) {
-      throw new UnprocessableEntityException({
-        statusCode: 422,
-        error: 'INVALID_DATE',
-        message: 'date must be a valid ISO date (YYYY-MM-DD)',
-      });
-    }
+    assertIsoDateOrUnprocessable(dto.date, {
+      statusCode: 422,
+      error: 'INVALID_DATE',
+      message: 'date must be a valid ISO date (YYYY-MM-DD)',
+    });
     const em = this.orm.em.fork();
-    const rotation = await requireRotation(em, slug);
-    const schedule = await requireSchedule(em, rotation);
+    const rotation = await getRotationOrThrow(em, slug);
+    const schedule = await getScheduleOrThrow(em, rotation);
     if (schedule.type !== 'custom_date_list') {
       throw new ConflictException({
         statusCode: 409,
@@ -201,8 +169,8 @@ export class ScheduleService {
 
   async removeDate(slug: string, dateStr: string): Promise<void> {
     const em = this.orm.em.fork();
-    const rotation = await requireRotation(em, slug);
-    const schedule = await requireSchedule(em, rotation);
+    const rotation = await getRotationOrThrow(em, slug);
+    const schedule = await getScheduleOrThrow(em, rotation);
     if (schedule.type !== 'custom_date_list') {
       throw new ConflictException({
         statusCode: 409,
@@ -231,7 +199,7 @@ export class ScheduleService {
       });
     }
     const em = this.orm.em.fork();
-    const rotation = await requireRotation(em, slug);
+    const rotation = await getRotationOrThrow(em, slug);
     let schedule = await em.findOne(Schedule, { rotation });
     if (!schedule) {
       schedule = new Schedule();

@@ -13,6 +13,42 @@ import type { Schedule } from './schedule.entity.js';
 
 const MAX_FUTURE_LOOKUP = 10_000;
 
+function toDateStrings(dates: Date[]): string[] {
+  return dates.map((date) => toIsoDate(date));
+}
+
+function assignmentByDate(assignments: OccurrenceAssignment[]): Map<string, OccurrenceAssignment> {
+  return new Map(
+    assignments.map((assignment) => [toIsoDate(new Date(assignment.occurrenceDate)), assignment]),
+  );
+}
+
+function toCancelledFutureDateSet(assignments: OccurrenceAssignment[]): Set<string> {
+  return new Set(assignments.map((assignment) => toIsoDate(new Date(assignment.occurrenceDate))));
+}
+
+function toCancelledOccurrence(dateStr: string, assignment: OccurrenceAssignment): OccurrenceDto {
+  return {
+    date: dateStr,
+    memberId: null,
+    memberName: null,
+    isPast: false,
+    cancelledMemberId: assignment.member?.id ?? null,
+    cancelledMemberName: assignment.member?.name ?? null,
+  };
+}
+
+function toAssignedOccurrence(dateStr: string, assignment: OccurrenceAssignment): OccurrenceDto {
+  return {
+    date: dateStr,
+    memberId: assignment.member?.id ?? null,
+    memberName: assignment.member?.name ?? null,
+    isPast: false,
+    cancelledMemberId: null,
+    cancelledMemberName: null,
+  };
+}
+
 export async function browseForward(
   em: EntityManager,
   rotation: Rotation,
@@ -51,46 +87,30 @@ export async function browseForward(
 
   const hasMore = pageDates.length > limit;
   pageDates = pageDates.slice(0, limit);
-  const pageDateStrs = pageDates.map((d) => toIsoDate(d));
+  const pageDateStrs = toDateStrings(pageDates);
 
   const assignments = await em.find(
     OccurrenceAssignment,
     { rotation, occurrenceDate: { $in: pageDateStrs } as unknown as string },
     { populate: ['member'] },
   );
-  const assignmentMap = new Map(assignments.map((a) => [toIsoDate(new Date(a.occurrenceDate)), a]));
+  const assignmentMap = assignmentByDate(assignments);
 
   const transparentInRange = await em.find(OccurrenceAssignment, {
     rotation,
     skipType: 'date',
     occurrenceDate: { $in: allFutureDatesInRange } as unknown as string,
   });
-  const cancelledFutureDates = new Set(
-    transparentInRange.map((a) => toIsoDate(new Date(a.occurrenceDate))),
-  );
+  const cancelledFutureDates = toCancelledFutureDateSet(transparentInRange);
 
   const occurrences = pageDates.map((date): OccurrenceDto => {
     const dateStr = toIsoDate(date);
     const assignment = assignmentMap.get(dateStr) ?? null;
     if (assignment) {
       if (assignment.skipType === 'date') {
-        return {
-          date: dateStr,
-          memberId: null,
-          memberName: null,
-          isPast: false,
-          cancelledMemberId: assignment.member?.id ?? null,
-          cancelledMemberName: assignment.member?.name ?? null,
-        };
+        return toCancelledOccurrence(dateStr, assignment);
       }
-      return {
-        date: dateStr,
-        memberId: assignment.member?.id ?? null,
-        memberName: assignment.member?.name ?? null,
-        isPast: false,
-        cancelledMemberId: null,
-        cancelledMemberName: null,
-      };
+      return toAssignedOccurrence(dateStr, assignment);
     }
     const member = deriveFutureMember(
       queue,
@@ -144,7 +164,7 @@ export async function browseBackward(
     const todayStr = toIsoDate(localToday());
     allFutureDates = rows.map((r) => new Date(r.date)).filter((d) => toIsoDate(d) >= todayStr);
   }
-  const settledDateStrs = new Set(assignments.map((a) => toIsoDate(new Date(a.occurrenceDate))));
+  const settledDateStrs = toCancelledFutureDateSet(assignments);
   const futureBefore = allFutureDates
     .filter((d) => toIsoDate(d) < before)
     .filter((d) => !settledDateStrs.has(toIsoDate(d)));
