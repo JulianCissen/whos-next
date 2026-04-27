@@ -1,4 +1,4 @@
-import { MikroORM, UniqueConstraintViolationException } from '@mikro-orm/core';
+import { MikroORM, UniqueConstraintViolationException, type EntityManager } from '@mikro-orm/core';
 import {
   Injectable,
   InternalServerErrorException,
@@ -41,56 +41,25 @@ export class RotationsService {
 
   async create(dto: CreateRotationRequestDto): Promise<RotationResponseDto> {
     const scheduleDto = dto.schedule;
-    if (!scheduleDto?.type || !['recurrence_rule', 'custom_date_list'].includes(scheduleDto.type)) {
-      throw new UnprocessableEntityException({
-        statusCode: 422,
-        error: 'INVALID_SCHEDULE_TYPE',
-        message: 'schedule.type must be recurrence_rule or custom_date_list',
-      });
-    }
-    if (scheduleDto.type === 'recurrence_rule' && !scheduleDto.recurrenceRule) {
-      throw new UnprocessableEntityException({
-        statusCode: 422,
-        error: 'MISSING_RECURRENCE_RULE',
-        message: 'recurrenceRule is required when schedule.type is recurrence_rule',
-      });
-    }
+    this.assertCreateScheduleInput(scheduleDto);
 
     for (let attempt = 0; attempt < MAX_SLUG_RETRIES; attempt++) {
       const em = this.orm.em.fork();
-      const rotation = new Rotation();
-      rotation.slug = generateSlug();
-      rotation.name = dto.name;
-      rotation.lastAccessedAt = new Date();
-      em.persist(rotation);
-
-      const schedule = new Schedule();
-      schedule.rotation = rotation;
-      schedule.type = scheduleDto.type;
-      if (scheduleDto.type === 'recurrence_rule') {
-        const rule = scheduleDto.recurrenceRule!;
-        schedule.rruleType = rule.type;
-        schedule.dayOfWeek = rule.dayOfWeek ?? null;
-        schedule.intervalN = rule.intervalN ?? null;
-        schedule.monthlyDay = rule.monthlyDay ?? null;
-        schedule.startDate = scheduleDto.startDate ?? todayIso();
-      } else {
-        schedule.rruleType = null;
-        schedule.dayOfWeek = null;
-        schedule.intervalN = null;
-        schedule.monthlyDay = null;
-        schedule.startDate = null;
-      }
-      em.persist(schedule);
-
       try {
-        await em.flush();
+        const { rotation, schedule } = await this.persistNewRotationAndSchedule(
+          em,
+          dto,
+          scheduleDto,
+        );
         return this.toDto(rotation, [], schedule);
       } catch (error) {
-        if (error instanceof UniqueConstraintViolationException) continue;
+        if (error instanceof UniqueConstraintViolationException) {
+          continue;
+        }
         throw error;
       }
     }
+
     throw new InternalServerErrorException({
       statusCode: 500,
       error: 'SLUG_GENERATION_FAILED',
@@ -99,82 +68,137 @@ export class RotationsService {
   }
 
   async findBySlug(slug: string): Promise<RotationResponseDto> {
-    if (!SLUG_REGEX.test(slug)) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
-    const em = this.orm.em.fork();
-    const rotation = await em.findOne(Rotation, { slug });
-    if (!rotation) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
-    const members = await em.find(
-      Member,
-      { rotation, removedAt: null },
-      { orderBy: { position: 'ASC' } },
-    );
-    const schedule = await em.findOne(Schedule, { rotation });
-    let scheduleDates: ScheduleDate[] | undefined;
-    if (schedule?.type === 'custom_date_list') {
-      scheduleDates = await em.find(ScheduleDate, { schedule }, { orderBy: { date: 'ASC' } });
-    }
+    const { em, rotation } = await this.getRotationContextOrThrow(slug);
+    const members = await this.getActiveMembers(em, rotation);
+    const { schedule, scheduleDates } = await this.loadScheduleWithDates(em, rotation);
     this.scheduleLastAccessUpdate(slug);
-    return this.toDto(rotation, members, schedule ?? null, scheduleDates);
+    return this.toDto(rotation, members, schedule, scheduleDates);
   }
 
   async rename(slug: string, dto: RenameRotationRequestDto): Promise<RotationResponseDto> {
-    if (!SLUG_REGEX.test(slug)) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
-    const em = this.orm.em.fork();
-    const rotation = await em.findOne(Rotation, { slug });
-    if (!rotation) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
+    const { em, rotation } = await this.getRotationContextOrThrow(slug);
     rotation.rename(dto.name);
     await em.flush();
-    const schedule = await em.findOne(Schedule, { rotation });
-    let scheduleDates: ScheduleDate[] | undefined;
-    if (schedule?.type === 'custom_date_list') {
-      scheduleDates = await em.find(ScheduleDate, { schedule }, { orderBy: { date: 'ASC' } });
-    }
-    return this.toDto(rotation, [], schedule ?? null, scheduleDates);
+    const { schedule, scheduleDates } = await this.loadScheduleWithDates(em, rotation);
+    return this.toDto(rotation, [], schedule, scheduleDates);
   }
 
   async delete(slug: string): Promise<void> {
-    if (!SLUG_REGEX.test(slug)) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
-    const em = this.orm.em.fork();
-    const rotation = await em.findOne(Rotation, { slug });
-    if (!rotation) {
-      throw new NotFoundException({
-        statusCode: 404,
-        error: 'ROTATION_NOT_FOUND',
-        message: 'Rotation not found',
-      });
-    }
+    const { em, rotation } = await this.getRotationContextOrThrow(slug);
     em.remove(rotation);
     await em.flush();
+  }
+
+  private async getRotationContextOrThrow(
+    slug: string,
+  ): Promise<{ em: EntityManager; rotation: Rotation }> {
+    this.assertSlugOrThrow(slug);
+    const em = this.orm.em.fork();
+    const rotation = await this.getRotationOrThrow(em, slug);
+    return { em, rotation };
+  }
+
+  private assertSlugOrThrow(slug: string): void {
+    if (!SLUG_REGEX.test(slug)) {
+      this.throwRotationNotFound();
+    }
+  }
+
+  private async getRotationOrThrow(em: EntityManager, slug: string): Promise<Rotation> {
+    const rotation = await em.findOne(Rotation, { slug });
+    if (!rotation) {
+      this.throwRotationNotFound();
+    }
+    return rotation;
+  }
+
+  private throwRotationNotFound(): never {
+    throw new NotFoundException({
+      statusCode: 404,
+      error: 'ROTATION_NOT_FOUND',
+      message: 'Rotation not found',
+    });
+  }
+
+  private getActiveMembers(em: EntityManager, rotation: Rotation): Promise<Member[]> {
+    return em.find(Member, { rotation, removedAt: null }, { orderBy: { position: 'ASC' } });
+  }
+
+  private assertCreateScheduleInput(scheduleDto: CreateRotationRequestDto['schedule']): void {
+    if (!scheduleDto?.type || !['recurrence_rule', 'custom_date_list'].includes(scheduleDto.type)) {
+      throw new UnprocessableEntityException({
+        statusCode: 422,
+        error: 'INVALID_SCHEDULE_TYPE',
+        message: 'schedule.type must be recurrence_rule or custom_date_list',
+      });
+    }
+
+    if (scheduleDto.type === 'recurrence_rule' && !scheduleDto.recurrenceRule) {
+      throw new UnprocessableEntityException({
+        statusCode: 422,
+        error: 'MISSING_RECURRENCE_RULE',
+        message: 'recurrenceRule is required when schedule.type is recurrence_rule',
+      });
+    }
+  }
+
+  private async persistNewRotationAndSchedule(
+    em: EntityManager,
+    dto: CreateRotationRequestDto,
+    scheduleDto: CreateRotationRequestDto['schedule'],
+  ): Promise<{ rotation: Rotation; schedule: Schedule }> {
+    const rotation = this.buildRotation(dto.name);
+    const schedule = this.buildSchedule(rotation, scheduleDto);
+    em.persist(rotation);
+    em.persist(schedule);
+    await em.flush();
+    return { rotation, schedule };
+  }
+
+  private buildRotation(name: string): Rotation {
+    const rotation = new Rotation();
+    rotation.slug = generateSlug();
+    rotation.name = name;
+    rotation.lastAccessedAt = new Date();
+    return rotation;
+  }
+
+  private buildSchedule(
+    rotation: Rotation,
+    scheduleDto: CreateRotationRequestDto['schedule'],
+  ): Schedule {
+    const schedule = new Schedule();
+    schedule.rotation = rotation;
+    schedule.type = scheduleDto.type;
+
+    if (scheduleDto.type === 'recurrence_rule') {
+      const rule = scheduleDto.recurrenceRule!;
+      schedule.rruleType = rule.type;
+      schedule.dayOfWeek = rule.dayOfWeek ?? null;
+      schedule.intervalN = rule.intervalN ?? null;
+      schedule.monthlyDay = rule.monthlyDay ?? null;
+      schedule.startDate = scheduleDto.startDate ?? todayIso();
+      return schedule;
+    }
+
+    schedule.rruleType = null;
+    schedule.dayOfWeek = null;
+    schedule.intervalN = null;
+    schedule.monthlyDay = null;
+    schedule.startDate = null;
+    return schedule;
+  }
+
+  private async loadScheduleWithDates(
+    em: EntityManager,
+    rotation: Rotation,
+  ): Promise<{ schedule: Schedule | null; scheduleDates?: ScheduleDate[] }> {
+    const schedule = await em.findOne(Schedule, { rotation });
+    if (schedule?.type === 'custom_date_list') {
+      const scheduleDates = await em.find(ScheduleDate, { schedule }, { orderBy: { date: 'ASC' } });
+      return { schedule, scheduleDates };
+    }
+    return { schedule: schedule ?? null };
   }
 
   private scheduleLastAccessUpdate(slug: string): void {

@@ -1,5 +1,9 @@
 import { UniqueConstraintViolationException } from '@mikro-orm/core';
-import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 
 import { Rotation } from './rotation.entity.js';
@@ -94,6 +98,32 @@ describe('RotationsService', () => {
       await expect(
         service.create({ name: 'Test', schedule: { type: 'custom_date_list' } }),
       ).rejects.toBeInstanceOf(InternalServerErrorException);
+    });
+
+    it('throws UnprocessableEntityException for invalid schedule type', async () => {
+      const orm = makeOrmMock();
+      const service = new RotationsService(orm as never);
+
+      await expect(
+        service.create({
+          name: 'Dish duty',
+          schedule: { type: 'weekly' } as never,
+        }),
+      ).rejects.toBeInstanceOf(UnprocessableEntityException);
+      expect(orm._em.persist).not.toHaveBeenCalled();
+    });
+
+    it('throws UnprocessableEntityException for missing recurrenceRule', async () => {
+      const orm = makeOrmMock();
+      const service = new RotationsService(orm as never);
+
+      await expect(
+        service.create({
+          name: 'Dish duty',
+          schedule: { type: 'recurrence_rule' },
+        }),
+      ).rejects.toBeInstanceOf(UnprocessableEntityException);
+      expect(orm._em.persist).not.toHaveBeenCalled();
     });
   });
 
