@@ -25,7 +25,6 @@ import { RecentRotationStore } from '../../core/recent-rotation-store.service.js
 import { PillAppBarComponent } from '../../shared/pill-app-bar/pill-app-bar.component.js';
 
 import { AddMemberDialogComponent } from './add-member-form/add-member-dialog.component.js';
-import { AddMemberFormComponent } from './add-member-form/add-member-form.component.js';
 import { DashboardSkeletonComponent } from './dashboard-skeleton/dashboard-skeleton.component.js';
 import { MemberQueueComponent } from './member-queue/member-queue.component.js';
 import { OccurrenceViewComponent } from './occurrence-view/occurrence-view.component.js';
@@ -45,7 +44,6 @@ import { UpNextHeroCardComponent } from './up-next-hero-card/up-next-hero-card.c
     PillAppBarComponent,
     DashboardSkeletonComponent,
     UpNextHeroCardComponent,
-    AddMemberFormComponent,
     MemberQueueComponent,
     OccurrenceViewComponent,
   ],
