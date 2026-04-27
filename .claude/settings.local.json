@@ -30,7 +30,8 @@
       "WebFetch(domain:mikro-orm.io)",
       "WebFetch(domain:api.anthropic.com)",
       "Bash(npx eslint *)",
-      "mcp__chrome-devtools-mcp__emulate"
+      "mcp__chrome-devtools-mcp__emulate",
+      "Bash(pnpm eslint *)"
     ]
   },
   "enableAllProjectMcpServers": true,

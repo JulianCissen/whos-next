@@ -42,11 +42,7 @@ function positiveIntValidator(min: number, max: number): ValidatorFn {
           >
             {{ 'landing.cadence_toggle' | translate }}
           </button>
-          <button
-            type="button"
-            class="scc__btn"
-            disabled
-          >
+          <button type="button" class="scc__btn" disabled>
             {{ 'landing.manual_toggle' | translate }}
           </button>
         </div>
