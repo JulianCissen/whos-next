@@ -16,15 +16,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { MemberDto } from '@whos-next/shared';
 
+import { memberAvatarColor } from '../../../core/avatar-color.js';
 import { LanguageService } from '../../../core/language.service.js';
-
-function nameToColor(name: string): string {
-  let hash = 0;
-  // eslint-disable-next-line unicorn/prefer-code-point
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  const hue = (hash % 12) * 30;
-  return `hsl(${hue}, 65%, 42%)`;
-}
 
 function formatDate(isoDate: string, locale: string): string {
   const [y, m, d] = isoDate.split('-').map(Number);
@@ -103,7 +96,7 @@ export class MemberQueueComponent {
   }
 
   protected avatarColor(name: string): string {
-    return nameToColor(name);
+    return memberAvatarColor(name);
   }
 
   onDrop(event: CdkDragDrop<MemberDto[]>): void {

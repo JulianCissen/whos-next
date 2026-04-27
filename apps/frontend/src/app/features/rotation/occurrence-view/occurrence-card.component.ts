@@ -14,6 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import type { OccurrenceDto } from '@whos-next/shared';
 
+import { memberAvatarColor } from '../../../core/avatar-color.js';
 import { LanguageService } from '../../../core/language.service.js';
 
 @Component({
@@ -118,9 +119,6 @@ export class OccurrenceCardComponent {
   }
 
   protected nameToColor(name: string): string {
-    const hues = [0, 30, 60, 120, 180, 210, 240, 270, 300, 330, 150, 90];
-    let hash = 0;
-    for (const ch of name) hash = (hash * 31 + (ch.codePointAt(0) ?? 0)) & 0xff_ff;
-    return `hsl(${hues[hash % hues.length]}, 65%, 42%)`;
+    return memberAvatarColor(name);
   }
 }
